@@ -86,4 +86,4 @@ docker compose stop
 
 ## Comments for A1
 
-We tried implementing all subtasks of assignment A1, aiming for the *Excellent* level in the rubric. Only F1 is a work-in-progress with an open PR. All repositories have been tagged with the 'A1' for this assignment.
+We tried implementing all subtasks of assignment A1, aiming for the *Excellent* level in the rubric. All repositories have been tagged with the 'A1' for this assignment.
