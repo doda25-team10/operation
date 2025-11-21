@@ -1,4 +1,4 @@
-## Week Q2.1 (Nov 3+)
+## Week Q2.1 (Nov 10+)
 
 No work
 
