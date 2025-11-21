@@ -59,13 +59,13 @@ If everything ran properly going to [http://localhost:8080](http://localhost:808
 To stop and remove the containers, run:
 
 ```bash
-docker-compose down -v
+docker-compose down
 ```
 
 To stop the containers temporarily while keeping them intact, run:
 
 ```bash
-docker-compose down
+docker-compose stop
 ```
 
 ## Comments for A1
