@@ -8,9 +8,8 @@
 | Team Member | Contribution Description | Merged PRs (Created) | Approved PRs (Reviewed) |
 | :--- | :--- | :--- | :--- |
 | **Andrea** | Worked on **A1**, covering the model service containerization, versioning, and packaging. This specifically addressed points **F3, F4, F5, F6, and F8**. | https://github.com/doda25-team10/model-service/pull/2 | |
-| **Yi** | Focused on running the containers, providing documentation covering the necessary steps. This addressed point **F7**. | https://github.com/doda25-team10/operation/pull/4 | |
+| **Yi** | Focused on running the containers, providing documentation covering the necessary steps. This addressed point **F7**. | https://github.com/doda25-team10/operation/pull/4 | https://github.com/doda25-team10/lib-version/pull/4 |
 | **Maciej** | Due to late group joining and early family commitments, Maciej did not contribute to this specific part of the Project as intended. **Full commitment is expected** in the upcoming weeks to help the group achieve its goals. | - | - |
 | **Denis** | Fixed small issues related to the usage of environmental files and created a workflow for the model release. Added description of the organization to the README in operation repository. | https://github.com/doda25-team10/operation/pull/6, https://github.com/doda25-team10/model-service/pull/6 | https://github.com/doda25-team10/model-service/pull/2, https://github.com/doda25-team10/model-service/pull/5 |
 | **Paul** |  | https://github.com/doda25-team10/lib-version/pull/6 | https://github.com/doda25-team10/operation/pull/6 |
 | **Aadesh** | I have worked on the containerisation, versioning and packaging of the app-service, i.e. F3, F4, F5, F6, F8. Not everything might be on main yet but it is implemented.| https://github.com/doda25-team10/app-service/pull/2, https://github.com/doda25-team10/app-service/pull/3, https://github.com/doda25-team10/app-service/pull/4 (finished, not yet merged) | https://github.com/doda25-team10/model-service/pull/4 |
-
