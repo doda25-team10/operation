@@ -56,10 +56,10 @@ If everything ran properly going to [http://localhost:8080](http://localhost:808
 
 ## Cleanup
 
-To stop and remove the containers, run:
+To stop and remove the containers run the following command (-v to also remove images):
 
 ```bash
-docker-compose down
+docker-compose down -v
 ```
 
 To stop the containers temporarily while keeping them intact, run:
