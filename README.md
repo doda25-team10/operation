@@ -23,7 +23,7 @@ This repository contains the necessary configuration to run and operate the serv
 
 * [docker-compose.yml](/docker-compose.yml): Defines and starts the Docker containers by retrieving the required images.
 * `README.md`: Provides instructions for startup, usage, and general information about the project.
-* [Local model/ folder](/model/): Contains the trained model files and prediction outputs used by the model-service.
+* [Local model/ folder](/model/): Includes the trained model files when using a custom model as well as the output of the trained model.
 
 ## Getting Started
 
@@ -33,7 +33,11 @@ Use the following steps to startup the services.
 
 Make sure you have [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed on your machine.
 
-(Local model/ folder containing prediction models in .joblib format)
+In case you are using a custom model, create a new folder called model in the current root folder with the following files:
+- model.joblib
+- preprocessor.joblib
+- preprocessed_data.joblib
+
 
 ### 2. Start the Containers
 
@@ -41,31 +45,43 @@ Open a terminal and navigate to the root folder of the **`operation`** repositor
 Then start the containers with:
 
 ```bash
-docker-compose up
+docker compose up
 ```
 
 If you prefer to keep using the same terminal for other commands, run the containers in the background:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 ### 3. Access service
 
-If everything ran properly going to [http://localhost:8080](http://localhost:8080) should show a "Hello World!" page.
+If everything ran properly, going to http://localhost:8080 should show a page with "Hello World!" and the current library version.
+
+To use the application go to http://localhost:8080/sms.
 
 ## Cleanup
 
-To stop and remove the containers run the following command (-v to also remove images):
+To stop and remove both containers and images, run:
 
 ```bash
-docker-compose down -v
+docker compose down --rmi all
 ```
+
+---
+
+To stop and remove the containers while leaving the images intact, run:
+
+```bash
+docker compose down 
+```
+
+---
 
 To stop the containers temporarily while keeping them intact, run:
 
 ```bash
-docker-compose stop
+docker compose stop
 ```
 
 ## Comments for A1
