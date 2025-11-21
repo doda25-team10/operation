@@ -1,8 +1,9 @@
-## Week Q2.1 (Nov 10+)
+# Team 10 Activity
 
+## Week Q2.1 (Nov 10+)
 No work
 
-### Week Q2.2 (Nov 17+)
+## Week Q2.2 (Nov 17+)
 
 - **Andrea:** https://github.com/doda25-team10/model-service/pull/2
   I have worked on A1, covering the model service containerisation, versioning, and packaging, covering points F3, F4, F5, F6, and F8.
@@ -14,6 +15,6 @@ No work
 
 - **Maciej:** I did not contribute to this part of the Project the way I intended to due to late group joining, which was my fault, and some family related problems at the beginning of the course. However, I will fully commit to the project in the upcoming weeks to help my group achieve a desired goal.
 
-- **Denis:**
+## Denis
 -   Merged: https://github.com/doda25-team10/operation/pull/6, https://github.com/doda25-team10/model-service/pull/6
 -   Approved: https://github.com/doda25-team10/model-service/pull/2, https://github.com/doda25-team10/model-service/pull/5
