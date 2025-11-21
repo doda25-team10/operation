@@ -8,3 +8,6 @@ No work
   I have worked on A1, covering the model service containerisation, versioning, and packaging, covering points F3, F4, F5, F6, and F8.
 
 - Yi: https://github.com/doda25-team10/operation/pull/4 I worked on running the containers with documentation covering the steps to run it. This covers F7.
+
+- Paul: https://github.com/doda25-team10/lib-version/pull/6
+  I have worked on A1, implementing the version-aware library, its automated release workflow and the advanced versioning strategy for it, covering F1, F2 and F11.
