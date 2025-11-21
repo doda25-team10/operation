@@ -6,3 +6,5 @@ No work
 
 - Andrea: https://github.com/doda25-team10/model-service/pull/2
   I have worked on A1, covering the model service containerisation, versioning, and packaging, covering points F3, F4, F5, F6, and F8.
+
+- Yi: https://github.com/doda25-team10/operation/pull/4 I worked on running the containers with documentation covering the steps to run it. This covers F7.
