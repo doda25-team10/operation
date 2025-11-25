@@ -1,0 +1,11 @@
+---
+# MASTER PLAYBOOK
+
+# General Setup
+- import_playbook: general.yml
+
+# Ctrl Setup
+- import_playbook: ctrl.yml
+
+# Nodes Setup
+- import_playbook: node.yml
