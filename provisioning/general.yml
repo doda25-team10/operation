@@ -1,0 +1,35 @@
+---
+- hosts: all
+  become: true
+  gather_facts: true
+  
+  tasks:
+    - name: Update Apt Cache (Only if older than 1 hour)
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      tags: ['setup']
+
+    - name: Install Common Utilities
+      apt:
+        name:
+          - curl
+          - wget
+          - git
+          - htop
+        state: present
+      tags: ['setup']
+
+    - name: Verify Setup
+      debug:
+        msg: "Node {{ inventory_hostname }} is ready."
+
+    - name: Add cluster nodes to /etc/hosts
+      blockinfile:
+        path: /etc/hosts
+        marker: "# {mark} ANSIBLE MANAGED BLOCK"
+        content: |
+          {{ ctrl_ip }} ctrl
+          {% for i in range(1, worker_count | int + 1) %}
+          {{ subnet_prefix }}.{{ 10 + i }} node-{{ i }}
+          {% endfor %}

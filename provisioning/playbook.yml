@@ -1,0 +1,5 @@
+---
+# MASTER PLAYBOOK
+
+# General Setup
+- import_playbook: general.yml
