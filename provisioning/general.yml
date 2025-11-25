@@ -202,3 +202,11 @@
                 name: kubelet
                 state: started
           tags: ['kubernetes']
+          
+    - name: Register public keys
+      authorized_key:
+        user: vagrant
+        state: present
+        key: "{{ lookup('file', item) }}"
+      loop: "{{ query('fileglob', 'ssh-keys/*.pub') }}"
+      tags: ['ssh-keys']
