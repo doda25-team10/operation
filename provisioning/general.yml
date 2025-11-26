@@ -2,7 +2,7 @@
 - hosts: all
   become: true
   gather_facts: true
-  
+
   tasks:
     - name: Update Apt Cache (Only if older than 1 hour)
       apt:
@@ -210,3 +210,21 @@
         key: "{{ lookup('file', item) }}"
       loop: "{{ query('fileglob', 'ssh-keys/*.pub') }}"
       tags: ['ssh-keys']
+
+    - name: Create k8s.conf to load modules at boot
+      copy:
+        dest: /etc/modules-load.d/k8s.conf
+        content: |
+          overlay
+          br_netfilter
+        mode: '0644'
+
+    - name: Load overlay module
+      modprobe:
+        name: overlay
+        state: present
+
+    - name: Load br_netfilter module
+      modprobe:
+        name: br_netfilter
+        state: present
