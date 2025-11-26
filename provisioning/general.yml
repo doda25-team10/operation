@@ -119,3 +119,18 @@
         value: '1'
         state: present
         reload: yes
+        
+    - name: Verify Kubernetes repo (concise)
+      block:
+        - name: Read kubelet policy
+          command: apt-cache policy kubelet
+          register: kubelet_policy
+          changed_when: false
+        - name: Print single-line confirmation
+          debug:
+            msg: >-
+              K8s repo OK: kubelet candidate {{
+              (kubelet_policy.stdout.splitlines()
+              | select('match', '^\s*Candidate:') | list | first
+              | regex_replace('^\s*Candidate:\s*','')) | default('unknown') }}
+              from pkgs.k8s.io={{ 'pkgs.k8s.io' in kubelet_policy.stdout }}
