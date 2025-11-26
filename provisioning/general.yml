@@ -20,6 +20,49 @@
         state: present
       tags: ['setup']
 
+    - name: Set Kubernetes repo variables
+      vars:
+        k8s_version: "v1.32"  
+        k8s_repo_url: "https://pkgs.k8s.io/core:/stable:/{{ k8s_version }}/deb/"
+        k8s_key_url: "{{ k8s_repo_url }}Release.key"
+        k8s_keyring_path: "/etc/apt/keyrings/kubernetes-apt-keyring.gpg"
+
+      block:
+        - name: Install APT prerequisites for Kubernetes repo
+          apt:
+            name:
+              - ca-certificates
+              - gnupg
+              - apt-transport-https
+            state: present
+          tags: ['setup', 'kubernetes']
+
+        - name: Ensure keyrings directory exists
+          file:
+            path: /etc/apt/keyrings
+            state: directory
+            mode: "0755"
+          tags: ['setup', 'kubernetes']
+
+        - name: Download Kubernetes APT repository key and dearmor
+          ansible.builtin.shell: |
+            curl -fsSL {{ k8s_key_url }} | gpg --dearmor -o {{ k8s_keyring_path }}
+          args:
+            creates: "{{ k8s_keyring_path }}"
+          tags: ['setup', 'kubernetes']
+
+        - name: Add Kubernetes apt repository (pkgs.k8s.io)
+          apt_repository:
+            repo: "deb [signed-by={{ k8s_keyring_path }}] {{ k8s_repo_url }} /"
+            filename: "kubernetes"
+            state: present
+          tags: ['setup', 'kubernetes']
+
+        - name: Update apt cache after adding Kubernetes repo
+          apt:
+            update_cache: yes
+          tags: ['setup', 'kubernetes']
+
     - name: Add cluster nodes to /etc/hosts
       blockinfile:
         path: /etc/hosts
