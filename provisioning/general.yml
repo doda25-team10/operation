@@ -73,7 +73,7 @@
           {{ subnet_prefix }}.{{ 100 + i }} node-{{ i }}
           {% endfor %}
 
-    - name: Verify Kubernetes repo (concise)
+    - name: Verify Kubernetes repo (concise) (testing purposes)
       block:
         - name: Read kubelet policy
           command: apt-cache policy kubelet
@@ -87,3 +87,118 @@
               | select('match', '^\s*Candidate:') | list | first
               | regex_replace('^\s*Candidate:\s*','')) | default('unknown') }}
               from pkgs.k8s.io={{ 'pkgs.k8s.io' in kubelet_policy.stdout }}
+
+    - name: Install containerd and runc
+      vars:
+        docker_keyring_path: "/etc/apt/keyrings/docker.gpg"
+
+          # Versions for amd64 (your environment – from apt-cache madison)
+
+        containerd_version_amd64: "1.7.24-1"
+        runc_version_amd64: "1.1.12-1"
+          # Versions for arm64 (your environment – from apt-cache madison) 
+        containerd_version_arm64: "1.6.21-1"
+        runc_version_arm64: "1.1.12-0ubuntu3"
+
+      block:
+        - name: Choose containerd/runc versions based on architecture
+          set_fact:
+            containerd_version: >-
+              {{ containerd_version_amd64 if ansible_architecture in ['x86_64','amd64']
+                else containerd_version_arm64 }}
+            runc_version: >-
+              {{ runc_version_amd64 if ansible_architecture in ['x86_64','amd64']
+                else runc_version_arm64 }}
+            install_runc_with_apt: "{{ ansible_architecture in ['x86_64','amd64'] }}"
+
+        - name: Ensure keyrings directory exists for Docker repo
+          file:
+            path: /etc/apt/keyrings
+            state: directory
+            mode: "0755"
+
+        - name: Install APT prerequisites for Docker repo
+          apt:
+            name:
+              - ca-certificates
+              - curl
+              - gnupg
+            state: present
+            update_cache: yes
+
+        - name: Add Docker apt repository key
+          shell: |
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+              | gpg --dearmor -o {{ docker_keyring_path }}
+          args:
+            creates: "{{ docker_keyring_path }}"
+
+        - name: Ensure clean Docker repo definition
+          file:
+            path: /etc/apt/sources.list.d/docker.list
+            state: absent
+
+        - name: Add Docker apt repository
+          apt_repository:
+            repo: "deb [arch=arm64 signed-by={{ docker_keyring_path }}] https://download.docker.com/linux/ubuntu bionic stable"
+            filename: "docker"
+            state: present
+
+        - name: Update apt cache after adding Docker repo
+          apt:
+            update_cache: yes
+
+        - name: Unhold containerd.io if previously held
+          dpkg_selections:
+            name: containerd.io
+            selection: install
+          ignore_errors: true
+
+        - name: Install containerd.io (pinned, may downgrade)
+          apt:
+            name:
+              - "containerd.io={{ containerd_version }}"
+            state: present
+            allow_downgrade: yes
+
+        - name: Enable and start containerd
+          service:
+            name: containerd
+            state: started
+            enabled: yes
+
+        - name: Hold containerd.io
+          dpkg_selections:
+            name: containerd.io
+            selection: hold
+
+        # runc from apt only on amd64 (no conflict)
+        - name: Install runc via apt on amd64
+          apt:
+            name:
+              - "runc={{ runc_version }}"
+            state: present
+            allow_downgrade: yes
+          when: install_runc_with_apt
+
+        # runc as binary on arm64 (to avoid conflicts)
+        - name: Install runc binary from GitHub on arm64
+          get_url:
+            url: "https://github.com/opencontainers/runc/releases/download/v1.1.12/runc.arm64"
+            dest: "/usr/local/sbin/runc"
+            mode: "0755"
+          when: not install_runc_with_apt
+        
+
+        - name: Enable and start kubelet
+          block:
+            - name: Enable kubelet service so it starts on boot
+              service:
+                name: kubelet
+                enabled: yes
+
+            - name: Ensure kubelet service is started
+              service:
+                name: kubelet
+                state: started
+          tags: ['kubernetes']
