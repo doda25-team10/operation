@@ -264,8 +264,8 @@
             name: kubelet
             enabled: yes
 
-            - name: Ensure kubelet service is started
-              service:
-                name: kubelet
-                state: started
+        - name: Ensure kubelet service is started
+          service:
+            name: kubelet
+            state: started
           tags: ['kubernetes']
