@@ -158,18 +158,7 @@
             update_cache: yes
             allow_downgrade: yes
             allow_change_held_packages: true
-
-        - name: Ensure no legacy holds on Kubernetes packages
-          dpkg_selections:
-            name: "{{ item }}"
-            selection: install
-          loop:
-            - kubelet
-            - kubeadm
-            - kubectl
-          ignore_errors: true
-          tags: ['kubernetes']
-
+        
         - name: Install Kubernetes components
           apt:
             name:
@@ -189,7 +178,7 @@
             state: present
             allow_downgrade: yes
             allow_change_held_packages: true
-        
+            
         #Step 12: Enable and start kubelet
         - name: Enable and start kubelet
           block:
