@@ -21,7 +21,6 @@
         regexp: '^\S+\s+\S+\s+swap\s+'
         state: absent
 
-
     - name: Install Common Utilities
       apt:
         name:
@@ -190,17 +189,83 @@
             state: present
             allow_downgrade: yes
             allow_change_held_packages: true
-            
-        #Step 12: Enable and start kubelet
-        - name: Enable and start kubelet
-          block:
-            - name: Enable kubelet service so it starts on boot
-              service:
-                name: kubelet
-                enabled: yes
 
-            - name: Ensure kubelet service is started
-              service:
-                name: kubelet
-                state: started
+    #Step 11: Configure containerd
+    - name: Check if containerd config.toml exists
+      stat:
+        path: /etc/containerd/config.toml
+      register: containerd_conf
+
+    - name: Ensure containerd config directory exists 
+      file: 
+        path: /etc/containerd 
+        state: directory 
+        mode: "0755"
+      when: not containerd_conf.stat.exists
+      become: true 
+      tags: ['setup', 'containerd']
+
+    - name: Generate default containerd config
+      command: containerd config default
+      become: true
+      register: containerd_default_config
+      changed_when: false
+      when: not containerd_conf.stat.exists
+
+    - name: Write default containerd config
+      copy:
+        dest: /etc/containerd/config.toml
+        content: "{{ containerd_default_config.stdout }}"
+        owner: root
+        group: root
+        mode: '0644'
+      when: not containerd_conf.stat.exists
+
+    - name: Change containerd settings
+      lineinfile:
+        path: /etc/containerd/config.toml
+        regexp: "^[ ]*disable_apparmor ="
+        line: "    disable_apparmor = true"
+        state: present
+      become: true
+      tags: ['setup', 'containerd']
+
+    - name: Update sandbox image
+      lineinfile:
+        path: /etc/containerd/config.toml
+        regexp: "^[ ]*sandbox_image ="
+        line: "    sandbox_image = \"registry.k8s.io/pause:3.10\""
+        state: present
+      become: true
+      tags: ['setup', 'containerd']
+
+    - name: Set SystemdCgroup
+      lineinfile:
+        path: /etc/containerd/config.toml
+        regexp: "^[ ]*SystemdCgroup ="
+        line: "            SystemdCgroup = true"
+        state: present
+      become: true
+      tags: ['setup', 'containerd']
+
+    - name: Restart containerd to apply new config
+      service:
+        name: containerd
+        state: restarted
+      when: not containerd_conf.stat.exists
+      become: true
+      tags: ['setup', 'containerd']
+            
+    #Step 12: Enable and start kubelet
+    - name: Enable and start kubelet
+      block:
+        - name: Enable kubelet service so it starts on boot
+          service:
+            name: kubelet
+            enabled: yes
+
+        - name: Ensure kubelet service is started
+          service:
+            name: kubelet
+            state: started
           tags: ['kubernetes']
