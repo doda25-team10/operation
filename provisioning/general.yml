@@ -10,6 +10,18 @@
         cache_valid_time: 3600
       tags: ['setup']
 
+    - name: Disable swap
+      shell: swapoff -a
+      tags: ['setup']
+
+    - name: Ensure swap is disabled on reboot
+      lineinfile:
+        path: /etc/fstab 
+        # Remove any swap entries
+        regexp: '^\S+\s+\S+\s+swap\s+'
+        state: absent
+
+
     - name: Install Common Utilities
       apt:
         name:
