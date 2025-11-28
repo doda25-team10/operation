@@ -20,6 +20,69 @@
         state: present
       tags: ['setup']
 
+    #Step 4: Register public keys
+    - name: Register public keys
+      authorized_key:
+        user: vagrant
+        state: present
+        key: "{{ lookup('file', item) }}"
+      loop: "{{ query('fileglob', 'ssh-keys/*.pub') }}"
+      tags: ['ssh-keys']
+
+    #Step 6: Br_netfilter module
+    - name: Create k8s.conf to load modules at boot
+      copy:
+        dest: /etc/modules-load.d/k8s.conf
+        content: |
+          overlay
+          br_netfilter
+        mode: '0644'
+
+    - name: Load overlay module
+      modprobe:
+        name: overlay
+        state: present
+
+    - name: Load br_netfilter module
+      modprobe:
+        name: br_netfilter
+        state: present
+
+    #Step 7: Enable IPv4 forwarding
+    - name: Enable IPv4 forwarding
+      sysctl:
+        name: net.ipv4.ip_forward
+        value: '1'
+        state: present
+        reload: yes
+
+    #Step 8: Enable bridged IPv4 iptables processing
+    - name: Enable bridged IPv4 iptables processing
+      sysctl:
+        name: net.bridge.bridge-nf-call-iptables
+        value: '1'
+        state: present
+        reload: yes
+
+    - name: Enable bridged IPv6 iptables processing
+      sysctl:
+        name: net.bridge.bridge-nf-call-ip6tables
+        value: '1'
+        state: present
+        reload: yes
+
+    #Step 8: Add cluster nodes to /etc/hosts
+    - name: Add cluster nodes to /etc/hosts
+      blockinfile:
+        path: /etc/hosts
+        marker: "# {mark} ANSIBLE MANAGED BLOCK"
+        content: |
+          {{ ctrl_ip }} ctrl
+          {% for i in range(1, worker_count | int + 1) %}
+          {{ subnet_prefix }}.{{ 100 + i }} node-{{ i }}
+          {% endfor %}
+
+    #Step 9: Set Kubernetes repo variables
     - name: Set Kubernetes repo variables
       vars:
         k8s_version: "v1.32"  
@@ -62,63 +125,6 @@
           apt:
             update_cache: yes
           tags: ['setup', 'kubernetes']
-    
-    - name: Register public keys
-      authorized_key:
-        user: vagrant
-        state: present
-        key: "{{ lookup('file', item) }}"
-      loop: "{{ query('fileglob', 'ssh-keys/*.pub') }}"
-      tags: ['ssh-keys']
-
-    - name: Create k8s.conf to load modules at boot
-      copy:
-        dest: /etc/modules-load.d/k8s.conf
-        content: |
-          overlay
-          br_netfilter
-        mode: '0644'
-
-    - name: Load overlay module
-      modprobe:
-        name: overlay
-        state: present
-
-    - name: Load br_netfilter module
-      modprobe:
-        name: br_netfilter
-        state: present
-
-    - name: Enable IPv4 forwarding
-      sysctl:
-        name: net.ipv4.ip_forward
-        value: '1'
-        state: present
-        reload: yes
-
-    - name: Enable bridged IPv4 iptables processing
-      sysctl:
-        name: net.bridge.bridge-nf-call-iptables
-        value: '1'
-        state: present
-        reload: yes
-
-    - name: Enable bridged IPv6 iptables processing
-      sysctl:
-        name: net.bridge.bridge-nf-call-ip6tables
-        value: '1'
-        state: present
-        reload: yes
-
-    - name: Add cluster nodes to /etc/hosts
-      blockinfile:
-        path: /etc/hosts
-        marker: "# {mark} ANSIBLE MANAGED BLOCK"
-        content: |
-          {{ ctrl_ip }} ctrl
-          {% for i in range(1, worker_count | int + 1) %}
-          {{ subnet_prefix }}.{{ 100 + i }} node-{{ i }}
-          {% endfor %}
 
     - name: Verify Kubernetes repo (concise) (testing purposes)
       block:
@@ -135,128 +141,109 @@
               | regex_replace('^\s*Candidate:\s*','')) | default('unknown') }}
               from pkgs.k8s.io={{ 'pkgs.k8s.io' in kubelet_policy.stdout }}
 
+    #Step 10: Install containerd and runc
     - name: Install containerd and runc
       vars:
-        docker_keyring_path: "/etc/apt/keyrings/docker.gpg"
-
-          # Versions for amd64 
-
-        containerd_version_amd64: "1.7.24-1"
-        runc_version_amd64: "1.1.12-1"
-
-          # Versions for arm64 
-        containerd_version_arm64: "1.6.21-1"
-        runc_version_arm64: "1.1.12-0ubuntu3"
+        containerd_pause_image: "registry.k8s.io/pause:3.10"
+        containerd_version: "1.7.24-0ubuntu1~24.04.2"
+        runc_version: "1.1.12-0ubuntu3"
+        kubernetes_component_version: "1.32.4-1.1"
 
       block:
-        - name: Choose containerd/runc versions based on architecture
-          set_fact:
-            containerd_version: >-
-              {{ containerd_version_amd64 if ansible_facts['architecture'] in ['x86_64','amd64']
-                else containerd_version_arm64 }}
-            runc_version: >-
-              {{ runc_version_amd64 if ansible_facts['architecture'] in ['x86_64','amd64']
-                else runc_version_arm64 }}
-            install_runc_with_apt: "{{ ansible_facts['architecture'] in ['x86_64','amd64'] }}"
+        - name: Install containerd with required version
+          apt:
+            name:
+              - "containerd={{ containerd_version }}"
+            state: present
+            update_cache: yes
+            allow_downgrade: yes
+            allow_change_held_packages: true
 
-        - name: Ensure keyrings directory exists for Docker repo
+        - name: Ensure containerd config directory exists
           file:
-            path: /etc/apt/keyrings
+            path: /etc/containerd
             state: directory
             mode: "0755"
 
-        - name: Install APT prerequisites for Docker repo
-          apt:
-            name:
-              - ca-certificates
-              - curl
-              - gnupg
-            state: present
-            update_cache: yes
+        - name: Generate containerd default config
+          command: containerd config default
+          register: containerd_default_config
+          changed_when: false
 
-        - name: Add Docker apt repository key
-          shell: |
-            curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
-              | gpg --dearmor -o {{ docker_keyring_path }}
-          args:
-            creates: "{{ docker_keyring_path }}"
+        - name: Write containerd config from default
+          copy:
+            dest: /etc/containerd/config.toml
+            content: "{{ containerd_default_config.stdout }}"
+            owner: root
+            group: root
+            mode: "0644"
+          register: containerd_config_copy_result
 
-        - name: Ensure clean Docker repo definition
-          file:
-            path: /etc/apt/sources.list.d/docker.list
-            state: absent
+        - name: Ensure containerd uses systemd cgroups
+          lineinfile:
+            path: /etc/containerd/config.toml
+            regexp: '^\s*SystemdCgroup\s*='
+            line: '            SystemdCgroup = true'
+          register: containerd_systemd_cgroup_line
 
-        - name: Add Docker apt repository
-          apt_repository:
-            repo: "deb [arch=arm64 signed-by={{ docker_keyring_path }}] https://download.docker.com/linux/ubuntu bionic stable"
-            filename: "docker"
-            state: present
+        - name: Ensure pause image matches cluster requirements
+          replace:
+            path: /etc/containerd/config.toml
+            regexp: '^(\s*sandbox_image\s*=\s*").*(")'
+            replace: '\1{{ containerd_pause_image }}\2'
+          register: containerd_pause_image_replace
 
-        - name: Update apt cache after adding Docker repo
-          apt:
-            update_cache: yes
+        - name: Enable containerd service
+          service:
+            name: containerd
+            enabled: yes
 
-        - name: Unhold containerd.io if previously held
-          dpkg_selections:
-            name: containerd.io
-            selection: install
-          ignore_errors: true
+        - name: Restart containerd if configuration changed
+          service:
+            name: containerd
+            state: restarted
+          when: >
+            containerd_config_copy_result.changed
+            or containerd_systemd_cgroup_line.changed
+            or containerd_pause_image_replace.changed
 
-        - name: Install containerd.io (pinned, may downgrade)
-          apt:
-            name:
-              - "containerd.io={{ containerd_version }}"
-            state: present
-            allow_downgrade: yes
-
-        - name: Enable and start containerd
+        - name: Ensure containerd is running
           service:
             name: containerd
             state: started
-            enabled: yes
 
-        - name: Hold containerd.io
-          dpkg_selections:
-            name: containerd.io
-            selection: hold
-
-        - name: Install Kubernetes components
-          apt:
-            name:
-              - kubelet
-              - kubeadm
-              - kubectl
-            state: present
-            update_cache: yes
-          tags: ['kubernetes']
-
-        - name: Hold Kubernetes components to prevent accidental upgrades
+        - name: Ensure no legacy holds on Kubernetes packages
           dpkg_selections:
             name: "{{ item }}"
-            selection: hold
+            selection: install
           loop:
             - kubelet
             - kubeadm
             - kubectl
+          ignore_errors: true
           tags: ['kubernetes']
 
-        # runc from apt only on amd64 (no conflict)
-        - name: Install runc via apt on amd64
+        - name: Install Kubernetes components
+          apt:
+            name:
+              - "kubelet={{ kubernetes_component_version }}"
+              - "kubeadm={{ kubernetes_component_version }}"
+              - "kubectl={{ kubernetes_component_version }}"
+            state: present
+            update_cache: yes
+            allow_downgrade: yes
+            allow_change_held_packages: true
+          tags: ['kubernetes']
+
+        - name: Install runc with required version
           apt:
             name:
               - "runc={{ runc_version }}"
             state: present
             allow_downgrade: yes
-          when: install_runc_with_apt
-
-        # runc as binary on arm64 (to avoid conflicts)
-        - name: Install runc binary from GitHub on arm64
-          get_url:
-            url: "https://github.com/opencontainers/runc/releases/download/v1.1.12/runc.arm64"
-            dest: "/usr/local/sbin/runc"
-            mode: "0755"
-          when: not install_runc_with_apt
+            allow_change_held_packages: true
         
+        #Step 12: Enable and start kubelet
         - name: Enable and start kubelet
           block:
             - name: Enable kubelet service so it starts on boot
