@@ -85,7 +85,7 @@ docker compose stop
 ```
 
 ---
-How to check if the correct version of Conteinerd, runc and kubutel are downloaded:
+## How to check if the correct version of Conteinerd, runc and kubutel are downloaded:
 
 Terminal 1:
 ```bash
@@ -122,4 +122,4 @@ systemctl is-active kubelet
 Should return activating
 ## Comments for A2
 
-We tried implementing steps up to and including Step 18 to match the Excellent criterion. 
+We tried implementing steps up to and including Step 12 to match the Excellent criterion. 
