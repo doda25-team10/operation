@@ -122,4 +122,4 @@ systemctl is-active kubelet
 Should return activating
 ## Comments for A2
 
-We tried implementing steps up to and including Step 12 to match the Excellent criterion. 
+We tried implementing steps up to and including Step 12 to match the Excellent criterion. The relevant operation repository has been tagged with the 'A2' tag.
