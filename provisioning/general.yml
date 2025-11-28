@@ -20,6 +20,17 @@
         state: present
       tags: ['setup']
 
+    - name: Disable swap
+      shell: swapoff -a
+      tags: ['setup']
+
+    - name: Ensure swap is disabled on reboot
+      lineinfile:
+        path: /etc/fstab 
+        # Remove any swap entries
+        regexp: '^\S+\s+\S+\s+swap\s+'
+        state: absent
+
     #Step 4: Register public keys
     - name: Register public keys
       authorized_key:
