@@ -10,16 +10,6 @@
         cache_valid_time: 3600
       tags: ['setup']
 
-    - name: Install Common Utilities
-      apt:
-        name:
-          - curl
-          - wget
-          - git
-          - htop
-        state: present
-      tags: ['setup']
-
     - name: Disable swap
       shell: swapoff -a
       tags: ['setup']
@@ -30,6 +20,16 @@
         # Remove any swap entries
         regexp: '^\S+\s+\S+\s+swap\s+'
         state: absent
+
+    - name: Install Common Utilities
+      apt:
+        name:
+          - curl
+          - wget
+          - git
+          - htop
+        state: present
+      tags: ['setup']
 
     #Step 4: Register public keys
     - name: Register public keys
