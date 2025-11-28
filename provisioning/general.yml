@@ -32,16 +32,7 @@
         state: present
       tags: ['setup']
 
-    - name: Add cluster nodes to /etc/hosts
-      blockinfile:
-        path: /etc/hosts
-        marker: "# {mark} ANSIBLE MANAGED BLOCK"
-        content: |
-          {{ ctrl_ip }} ctrl
-          {% for i in range(1, worker_count | int + 1) %}
-          {{ subnet_prefix }}.{{ 100 + i }} node-{{ i }}
-          {% endfor %}
-
+    #Step 4: Register public keys
     - name: Register public keys
       authorized_key:
         user: vagrant
@@ -50,6 +41,7 @@
       loop: "{{ query('fileglob', 'ssh-keys/*.pub') }}"
       tags: ['ssh-keys']
 
+    #Step 6: Br_netfilter module
     - name: Create k8s.conf to load modules at boot
       copy:
         dest: /etc/modules-load.d/k8s.conf
@@ -68,6 +60,7 @@
         name: br_netfilter
         state: present
 
+    #Step 7: Enable IPv4 forwarding
     - name: Enable IPv4 forwarding
       sysctl:
         name: net.ipv4.ip_forward
@@ -75,6 +68,7 @@
         state: present
         reload: yes
 
+    #Step 8: Enable bridged IPv4 iptables processing
     - name: Enable bridged IPv4 iptables processing
       sysctl:
         name: net.bridge.bridge-nf-call-iptables
@@ -88,3 +82,125 @@
         value: '1'
         state: present
         reload: yes
+
+    #Step 8: Add cluster nodes to /etc/hosts
+    - name: Add cluster nodes to /etc/hosts
+      blockinfile:
+        path: /etc/hosts
+        marker: "# {mark} ANSIBLE MANAGED BLOCK"
+        content: |
+          {{ ctrl_ip }} ctrl
+          {% for i in range(1, worker_count | int + 1) %}
+          {{ subnet_prefix }}.{{ 100 + i }} node-{{ i }}
+          {% endfor %}
+
+    #Step 9: Set Kubernetes repo variables
+    - name: Set Kubernetes repo variables
+      vars:
+        k8s_version: "v1.32"  
+        k8s_repo_url: "https://pkgs.k8s.io/core:/stable:/{{ k8s_version }}/deb/"
+        k8s_key_url: "{{ k8s_repo_url }}Release.key"
+        k8s_keyring_path: "/etc/apt/keyrings/kubernetes-apt-keyring.gpg"
+
+      block:
+        - name: Install APT prerequisites for Kubernetes repo
+          apt:
+            name:
+              - ca-certificates
+              - gnupg
+              - apt-transport-https
+            state: present
+          tags: ['setup', 'kubernetes']
+
+        - name: Ensure keyrings directory exists
+          file:
+            path: /etc/apt/keyrings
+            state: directory
+            mode: "0755"
+          tags: ['setup', 'kubernetes']
+
+        - name: Download Kubernetes APT repository key and dearmor
+          ansible.builtin.shell: |
+            curl -fsSL {{ k8s_key_url }} | gpg --dearmor -o {{ k8s_keyring_path }}
+          args:
+            creates: "{{ k8s_keyring_path }}"
+          tags: ['setup', 'kubernetes']
+
+        - name: Add Kubernetes apt repository (pkgs.k8s.io)
+          apt_repository:
+            repo: "deb [signed-by={{ k8s_keyring_path }}] {{ k8s_repo_url }} /"
+            filename: "kubernetes"
+            state: present
+          tags: ['setup', 'kubernetes']
+
+        - name: Update apt cache after adding Kubernetes repo
+          apt:
+            update_cache: yes
+          tags: ['setup', 'kubernetes']
+
+    - name: Verify Kubernetes repo (concise) (testing purposes)
+      block:
+        - name: Read kubelet policy
+          command: apt-cache policy kubelet
+          register: kubelet_policy
+          changed_when: false
+        - name: Print single-line confirmation
+          debug:
+            msg: >-
+              K8s repo OK: kubelet candidate {{
+              (kubelet_policy.stdout.splitlines()
+              | select('match', '^\s*Candidate:') | list | first
+              | regex_replace('^\s*Candidate:\s*','')) | default('unknown') }}
+              from pkgs.k8s.io={{ 'pkgs.k8s.io' in kubelet_policy.stdout }}
+
+    #Step 10: Install containerd and runc
+    - name: Install containerd and runc
+      vars:
+        containerd_pause_image: "registry.k8s.io/pause:3.10"
+        containerd_version: "1.7.24-0ubuntu1~24.04.2"
+        runc_version: "1.1.12-0ubuntu3"
+        kubernetes_component_version: "1.32.4-1.1"
+
+      block:
+        - name: Install containerd with required version
+          apt:
+            name:
+              - "containerd={{ containerd_version }}"
+            state: present
+            update_cache: yes
+            allow_downgrade: yes
+            allow_change_held_packages: true
+        
+        - name: Install Kubernetes components
+          apt:
+            name:
+              - "kubelet={{ kubernetes_component_version }}"
+              - "kubeadm={{ kubernetes_component_version }}"
+              - "kubectl={{ kubernetes_component_version }}"
+            state: present
+            update_cache: yes
+            allow_downgrade: yes
+            allow_change_held_packages: true
+          tags: ['kubernetes']
+
+        - name: Install runc with required version
+          apt:
+            name:
+              - "runc={{ runc_version }}"
+            state: present
+            allow_downgrade: yes
+            allow_change_held_packages: true
+            
+        #Step 12: Enable and start kubelet
+        - name: Enable and start kubelet
+          block:
+            - name: Enable kubelet service so it starts on boot
+              service:
+                name: kubelet
+                enabled: yes
+
+            - name: Ensure kubelet service is started
+              service:
+                name: kubelet
+                state: started
+          tags: ['kubernetes']
