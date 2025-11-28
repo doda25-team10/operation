@@ -159,59 +159,6 @@
             allow_downgrade: yes
             allow_change_held_packages: true
 
-        - name: Ensure containerd config directory exists
-          file:
-            path: /etc/containerd
-            state: directory
-            mode: "0755"
-
-        - name: Generate containerd default config
-          command: containerd config default
-          register: containerd_default_config
-          changed_when: false
-
-        - name: Write containerd config from default
-          copy:
-            dest: /etc/containerd/config.toml
-            content: "{{ containerd_default_config.stdout }}"
-            owner: root
-            group: root
-            mode: "0644"
-          register: containerd_config_copy_result
-
-        - name: Ensure containerd uses systemd cgroups
-          lineinfile:
-            path: /etc/containerd/config.toml
-            regexp: '^\s*SystemdCgroup\s*='
-            line: '            SystemdCgroup = true'
-          register: containerd_systemd_cgroup_line
-
-        - name: Ensure pause image matches cluster requirements
-          replace:
-            path: /etc/containerd/config.toml
-            regexp: '^(\s*sandbox_image\s*=\s*").*(")'
-            replace: '\1{{ containerd_pause_image }}\2'
-          register: containerd_pause_image_replace
-
-        - name: Enable containerd service
-          service:
-            name: containerd
-            enabled: yes
-
-        - name: Restart containerd if configuration changed
-          service:
-            name: containerd
-            state: restarted
-          when: >
-            containerd_config_copy_result.changed
-            or containerd_systemd_cgroup_line.changed
-            or containerd_pause_image_replace.changed
-
-        - name: Ensure containerd is running
-          service:
-            name: containerd
-            state: started
-
         - name: Ensure no legacy holds on Kubernetes packages
           dpkg_selections:
             name: "{{ item }}"
