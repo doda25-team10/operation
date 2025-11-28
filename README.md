@@ -84,6 +84,42 @@ To stop the containers temporarily while keeping them intact, run:
 docker compose stop
 ```
 
-## Comments for A1
+---
+How to check if the correct version of Conteinerd, runc and kubutel are downloaded:
 
-We tried implementing all subtasks of assignment A1, aiming for the *Excellent* level in the rubric. All repositories have been tagged with the 'A1' for this assignment.
+Terminal 1:
+```bash
+vagrant up
+vagrant provision 
+```
+(It should work for a bit and either give ok or changed for all of the tasks)
+
+Terminal 2:
+in the operation
+```bash
+Vagrant ssh ctrl
+```
+```bash
+dpkg-query -W -f='${Version}\n' containerd 
+``` 
+This will show the version installed for containerd (should be 1.7.24)
+```bash
+dpkg-query -W -f='${Version}\n' runc 
+```
+This should also show the version installed for runc (should be1.1.12)
+```bash
+apt-cache policy kubelet
+```
+Here, it should print the version of the kubernetes (should be 1.32.4)
+```bash
+systemctl is-enabled kubelet 
+```
+It should return enabled
+
+```bash
+systemctl is-active kubelet 
+```
+Should return activating
+## Comments for A2
+
+We tried implementing steps up to and including Step 18 to match the Excellent criterion. 
