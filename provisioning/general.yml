@@ -152,12 +152,12 @@
         - name: Choose containerd/runc versions based on architecture
           set_fact:
             containerd_version: >-
-              {{ containerd_version_amd64 if ansible_architecture in ['x86_64','amd64']
+              {{ containerd_version_amd64 if ansible_facts['architecture'] in ['x86_64','amd64']
                 else containerd_version_arm64 }}
             runc_version: >-
-              {{ runc_version_amd64 if ansible_architecture in ['x86_64','amd64']
+              {{ runc_version_amd64 if ansible_facts['architecture'] in ['x86_64','amd64']
                 else runc_version_arm64 }}
-            install_runc_with_apt: "{{ ansible_architecture in ['x86_64','amd64'] }}"
+            install_runc_with_apt: "{{ ansible_facts['architecture'] in ['x86_64','amd64'] }}"
 
         - name: Ensure keyrings directory exists for Docker repo
           file:
@@ -220,6 +220,26 @@
             name: containerd.io
             selection: hold
 
+        - name: Install Kubernetes components
+          apt:
+            name:
+              - kubelet
+              - kubeadm
+              - kubectl
+            state: present
+            update_cache: yes
+          tags: ['kubernetes']
+
+        - name: Hold Kubernetes components to prevent accidental upgrades
+          dpkg_selections:
+            name: "{{ item }}"
+            selection: hold
+          loop:
+            - kubelet
+            - kubeadm
+            - kubectl
+          tags: ['kubernetes']
+
         # runc from apt only on amd64 (no conflict)
         - name: Install runc via apt on amd64
           apt:
@@ -249,14 +269,3 @@
                 name: kubelet
                 state: started
           tags: ['kubernetes']
-
-    - name: Add cluster nodes to /etc/hosts
-      blockinfile:
-        path: /etc/hosts
-        marker: "# {mark} ANSIBLE MANAGED BLOCK"
-        content: |
-          {{ ctrl_ip }} ctrl
-          {% for i in range(1, worker_count | int + 1) %}
-          {{ subnet_prefix }}.{{ 100 + i }} node-{{ i }}
-          {% endfor %}
-
