@@ -4,6 +4,53 @@
   gather_facts: true
 
   tasks:
+
+    # -----------------------------------------------------------------------
+    # Step 13: Init cluster
+    # -----------------------------------------------------------------------
+
+    - name: Check if cluster is already initialized
+      stat:
+        path: /etc/kubernetes/admin.conf
+      register: kube_conf
+
+    - name: Initialize Kubernetes cluster using kubeadm
+      command: >
+        kubeadm init
+        --apiserver-advertise-address=192.168.56.100
+        --node-name ctrl
+        --pod-network-cidr=10.244.0.0/16
+      when: not kube_conf.stat.exists
+      register: kube_init_output
+
+    # -----------------------------------------------------------------------
+    # Step 14: Setup kubectl
+    # -----------------------------------------------------------------------
+
+    - name: Create .kube directory for vagrant user
+      file:
+        path: /home/vagrant/.kube
+        state: directory
+        owner: vagrant
+        group: vagrant
+        mode: '0755'
+
+    - name: Copy admin.conf to vagrant user config
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /home/vagrant/.kube/config
+        remote_src: yes
+        owner: vagrant
+        group: vagrant
+        mode: '0600'
+
+    - name: Copy kubeconfig to shared folder (for host access)
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /vagrant/kubeconfig
+        remote_src: yes
+        mode: '0644'
+
     # Step 15: Install Flannel Pod Network
     - name: Download Flannel manifest
       shell: curl -fsSL https://github.com/flannel-io/flannel/releases/download/v0.26.7/kube-flannel.yml -o /tmp/kube-flannel.yml
