@@ -17,7 +17,7 @@
     - name: Initialize Kubernetes cluster using kubeadm
       command: >
         kubeadm init
-        --apiserver-advertise-address=192.168.56.100
+        --apiserver-advertise-address=192.168.56.10
         --node-name ctrl
         --pod-network-cidr=10.244.0.0/16
       when: not kube_conf.stat.exists

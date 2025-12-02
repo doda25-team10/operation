@@ -90,7 +90,7 @@
         content: |
           {{ ctrl_ip }} ctrl
           {% for i in range(1, worker_count | int + 1) %}
-          {{ subnet_prefix }}.{{ 100 + i }} node-{{ i }}
+          {{ subnet_prefix }}.{{ 10 + i }} node-{{ i }}
           {% endfor %}
 
     #Step 9: Set Kubernetes repo variables
