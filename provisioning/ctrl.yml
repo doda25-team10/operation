@@ -4,10 +4,8 @@
   gather_facts: true
 
   tasks:
-
-    # -----------------------------------------------------------------------
-    # Step 13: Init cluster
-    # -----------------------------------------------------------------------
+    
+    # STEP 13: Init cluster
 
     - name: Check if cluster is already initialized
       stat:
@@ -23,9 +21,7 @@
       when: not kube_conf.stat.exists
       register: kube_init_output
 
-    # -----------------------------------------------------------------------
-    # Step 14: Setup kubectl
-    # -----------------------------------------------------------------------
+    # STEP 14: Setup kubectl
     
     - name: Create .kube directory for vagrant user
       file:
@@ -50,3 +46,42 @@
         dest: /vagrant/kubeconfig
         remote_src: yes
         mode: '0644'
+
+    # STEP 16: Install Helm
+
+    - name: Install Helm prerequisites
+      apt:
+        name:
+          - curl
+          - gpg
+          - apt-transport-https
+        state: present
+
+    - name: Download and dearmor Helm GPG key
+      shell: |
+        curl -fsSL https://packages.buildkite.com/helm-linux/helm-debian/gpgkey | gpg --dearmor -o /usr/share/keyrings/helm.gpg
+      args:
+        creates: /usr/share/keyrings/helm.gpg
+
+    - name: Add Helm apt repository
+      apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/helm.gpg] https://packages.buildkite.com/helm-linux/helm-debian/any/ any main"
+        filename: "helm-stable-debian"
+        state: present
+        update_cache: yes
+
+    - name: Install Helm
+      apt:
+        name: helm
+        state: present
+
+    # STEP 17: Install Helm package (diff)
+
+    - name: Install helm-diff plugin
+      become_user: vagrant
+      shell: helm plugin install https://github.com/databus23/helm-diff
+      register: helm_plugin_result
+      failed_when: 
+        - helm_plugin_result.rc != 0 
+        - '"plugin already exists" not in helm_plugin_result.stderr'
+      changed_when: '"Installed" in helm_plugin_result.stdout'
