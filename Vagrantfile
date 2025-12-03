@@ -4,7 +4,7 @@ NUMBER_CPU_WORKER = 4
 MEMORY_SIZE_CTRL = 4096
 MEMORY_SIZE_WORKER = 2048
 
-IP_CTRL = "192.168.56.10"
+IP_CTRL = "192.168.56.100"
 SUBNET = "192.168.56"
 
 
@@ -28,7 +28,7 @@ Vagrant.configure("2") do |config|
     worker_name = "node-#{i}"
     config.vm.define worker_name do |worker_config|
       worker_config.vm.hostname = worker_name
-      ip_octet = 10 + i
+      ip_octet = 100 + i
       worker_config.vm.network "private_network", ip: "#{SUBNET}.#{ip_octet}"
       worker_config.vm.provider "virtualbox" do |vb|
         vb.memory = MEMORY_SIZE_WORKER
@@ -49,7 +49,7 @@ Vagrant.configure("2") do |config|
           f.puts ""
           f.puts "[workers]"
           (1..NUM_WORKERS).each do |i|
-             f.puts "node-#{i} ansible_host=#{SUBNET}.#{10 + i} ansible_user=vagrant"
+             f.puts "node-#{i} ansible_host=#{SUBNET}.#{100 + i} ansible_user=vagrant"
           end
           f.puts ""
           f.puts "[cluster:children]"
