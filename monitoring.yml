@@ -19,12 +19,12 @@ spec:
       containers:
       - name: app-service
         image: app-service:local
+        imagePullPolicy: Always
         ports:
           - containerPort: 8080
         env:
           - name: MODEL_HOST
             value: "http://model-service:8081"
-
 ---
 apiVersion: v1
 kind: Service
