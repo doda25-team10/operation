@@ -19,7 +19,6 @@ spec:
       containers:
       - name: app-service
         image: app-service:local
-        imagePullPolicy: Always
         ports:
           - containerPort: 8080
         env:
