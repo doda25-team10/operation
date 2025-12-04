@@ -10,6 +10,7 @@ SUBNET = "192.168.56"
 
 Vagrant.configure("2") do |config|
 
+  config.vm.boot_timeout = 600
   config.vm.box = "bento/ubuntu-24.04"
   config.vm.box_version = "202510.26.0"
 
@@ -27,7 +28,7 @@ Vagrant.configure("2") do |config|
     worker_name = "node-#{i}"
     config.vm.define worker_name do |worker_config|
       worker_config.vm.hostname = worker_name
-      ip_octet = 100 + i 
+      ip_octet = 100 + i
       worker_config.vm.network "private_network", ip: "#{SUBNET}.#{ip_octet}"
       worker_config.vm.provider "virtualbox" do |vb|
         vb.memory = MEMORY_SIZE_WORKER

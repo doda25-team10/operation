@@ -2,3 +2,25 @@
 - hosts: workers
   become: true
   gather_facts: true
+
+  tasks:
+
+    # Step 18: Generate join command on controller
+    - name: Generate join command on controller
+      shell: kubeadm token create --print-join-command
+      delegate_to: ctrl
+      register: join_command
+      changed_when: false
+      tags: [ 'join' ]
+
+    # Step 19: Join the cluster
+    - name: Check if node is already joined
+      stat:
+        path: /etc/kubernetes/kubelet.conf
+      register: kubelet_conf
+      tags: [ 'join' ]
+
+    - name: Run kubeadm join command
+      shell: "{{ join_command.stdout }}"
+      when: not kubelet_conf.stat.exists
+      tags: [ 'join' ]
