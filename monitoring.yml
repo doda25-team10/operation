@@ -55,4 +55,4 @@ spec:
   endpoints:
     - port: http
       interval: 5s
-      path: /metrics
+      path: /sms/metrics
