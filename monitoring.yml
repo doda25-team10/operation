@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: app-service
-        image: app-service:localv2
+        image: app-service:local
         ports:
           - containerPort: 8080
         env:
