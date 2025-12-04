@@ -1,0 +1,55 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    -
+    - name: Create metallb-system namespace
+      shell: kubectl create namespace metallb-system --dry-run=client -o yaml | kubectl apply -f -
+
+    - name: Download MetalLB native manifest
+      get_url:
+        url: https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
+        dest: /tmp/metallb-native.yaml
+
+    - name: Apply MetalLB manifest
+      shell: kubectl apply -f /tmp/metallb-native.yaml
+
+    - name: Wait for MetalLB controller to be ready
+      shell: >
+        kubectl wait --namespace metallb-system
+        --for=condition=ready pod
+        --selector=app=metallb
+        --timeout=90s
+      register: metallb_wait
+      retries: 10
+      delay: 10
+      until: metallb_wait.rc == 0
+
+    - name: Copy MetalLB Pool Configuration
+      copy:
+        src: files/metallb-config.yaml
+        dest: /tmp/metallb-config.yaml
+
+    - name: Apply MetalLB Pool Configuration
+      shell: kubectl apply -f /tmp/metallb-config.yaml
+
+    - name: Add Nginx Ingress Helm Repo
+      kubernetes.core.helm_repository:
+        name: ingress-nginx
+        repo_url: https://kubernetes.github.io/ingress-nginx
+
+    - name: Update Helm repos
+      shell: helm repo update
+
+    - name: Install Nginx Ingress with Fixed IP
+      kubernetes.core.helm:
+        name: ingress-nginx
+        chart_ref: ingress-nginx/ingress-nginx
+        release_namespace: ingress-nginx
+        create_namespace: true
+        values:
+          controller:
+            service:
+              loadBalancerIP: "192.168.56.90"
+              annotations:
+                service.beta.kubernetes.io/azure-load-balancer-internal: "true"
