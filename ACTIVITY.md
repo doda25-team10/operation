@@ -24,3 +24,15 @@
 | **Denis** | Worked on **A2** by implementing steps 1, 2, 3, and 8 | [https://github.com/doda25-team10/operation/pull/13](https://github.com/doda25-team10/operation/pull/13) | [https://github.com/doda25-team10/operation/pull/18](https://github.com/doda25-team10/operation/pull/18) |
 | **Paul** |  Worked on **A2** by implementing step 7, additionally also worked on **A1** by removing localhost access to the model-service | [https://github.com/doda25-team10/lib-version/pull/16](https://github.com/doda25-team10/operation/pull/16) | [https://github.com/doda25-team10/operation/pull/14](https://github.com/doda25-team10/operation/pull/14) |
 | **Aadesh** | Worked on **A2** by implementing step 7| [https://github.com/doda25-team10/app-service/pull/18](https://github.com/doda25-team10/operation/pull/18) | [https://github.com/doda25-team10/operation/pull/16](https://github.com/doda25-team10/operation/pull/16) |
+
+
+## Week Q2.3 (Dec 1+)
+
+| Team Member | Contribution Description | Merged PRs (Created) | Approved PRs (Reviewed) |
+| :--- | :--- | :--- | :--- |
+| **Andrea** | Worked on the Monitoring part of the Assignment 3| https://github.com/doda25-team10/operation/pull/25 | https://github.com/doda25-team10/operation/pull/21 |
+| **Yi** | Focused on running the containers, providing documentation covering the necessary steps. This addressed point **F7**. | https://github.com/doda25-team10/operation/pull/4 | https://github.com/doda25-team10/lib-version/pull/4 |
+| **Maciej** | Worked on Helm chart from Assignment 3. The Pr is still open, because we had a2 to catch up with  | https://github.com/doda25-team10/operation/pull/24 | https://github.com/doda25-team10/operation/pull/23 |
+| **Denis** | Worked on A2 by implementing steps 13, 14, 16 and 17 | https://github.com/doda25-team10/operation/pull/20, https://github.com/doda25-team10/operation/pull/22| https://github.com/doda25-team10/operation/pull/21|
+| **Paul** | Worked on A2 steps 20 and 21 | https://github.com/doda25-team10/operation/pull/23 | https://github.com/doda25-team10/operation/pull/22 |
+| **Aadesh** | I have worked on the containerisation, versioning and packaging of the app-service, i.e. F3, F4, F5, F6, F8.| https://github.com/doda25-team10/app-service/pull/2, https://github.com/doda25-team10/app-service/pull/3, https://github.com/doda25-team10/app-service/pull/4 | https://github.com/doda25-team10/model-service/pull/4 |
