@@ -6,6 +6,7 @@ This repository contains the necessary configuration to run and operate the serv
 2. [Project Structure](#project-structure)
 3. [Getting Started](#getting-started)
 4. [Cleanup](#cleanup)
+5. [Assigment Comments](#comments-for-a3)
 
 ## Project Repositories
 
@@ -141,6 +142,6 @@ It should return enabled
 systemctl is-active kubelet 
 ```
 Should return activating
-## Comments for A2
+## Comments for A3
 
-We tried implementing steps up to and including Step 12 to match the Excellent criterion. The relevant operation repository has been tagged with the 'A2' tag.
+Because we haven't finished A2 completely yet, A3 does not have regarding the App Monitoring and Grafana yet. Kubernetes Usage has some functions implemented including the helm chart.
