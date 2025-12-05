@@ -1,10 +1,11 @@
 ---
 - hosts: all
   become: true
+
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+
   tasks:
-    -
-    - name: Create metallb-system namespace
-      shell: kubectl create namespace metallb-system --dry-run=client -o yaml | kubectl apply -f -
 
     - name: Download MetalLB native manifest
       get_url:
