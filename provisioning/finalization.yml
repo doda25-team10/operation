@@ -33,24 +33,143 @@
 
     - name: Apply MetalLB Pool Configuration
       shell: kubectl apply -f /tmp/metallb-config.yaml
-
+    
     - name: Add Nginx Ingress Helm Repo
-      kubernetes.core.helm_repository:
-        name: ingress-nginx
-        repo_url: https://kubernetes.github.io/ingress-nginx
+      shell: helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+      register: helm_repo_add
+      failed_when: false
+      changed_when: "'already exists' not in helm_repo_add.stderr"
 
     - name: Update Helm repos
       shell: helm repo update
 
     - name: Install Nginx Ingress with Fixed IP
-      kubernetes.core.helm:
-        name: ingress-nginx
-        chart_ref: ingress-nginx/ingress-nginx
-        release_namespace: ingress-nginx
-        create_namespace: true
-        values:
-          controller:
-            service:
-              loadBalancerIP: "192.168.56.90"
-              annotations:
-                service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+      shell: |
+        helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
+          --namespace ingress-nginx \
+          --create-namespace \
+          --set controller.service.loadBalancerIP=192.168.56.90
+
+    # Step 22: Install Kubernetes Dashboard
+    - name: Add Kubernetes Dashboard Helm repository
+      shell: helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+      register: helm_repo_add_dashboard
+      failed_when: false
+      changed_when: "'already exists' not in helm_repo_add_dashboard.stderr"
+
+    - name: Update Helm repositories
+      shell: helm repo update
+
+    # Not the latest version due to authorization issues with newer releases
+    - name: Install Kubernetes Dashboard (older stable version)
+      shell: |
+        helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard \
+          --namespace kubernetes-dashboard \
+          --create-namespace \
+          --version 6.0.8
+      register: dashboard_install
+
+    - name: Wait for Dashboard pods to be ready
+      shell: >
+        kubectl wait --namespace kubernetes-dashboard
+        --for=condition=ready pod
+        --selector=app.kubernetes.io/name=kubernetes-dashboard
+        --timeout=120s
+      register: dashboard_wait
+      retries: 5
+      delay: 10
+      until: dashboard_wait.rc == 0
+
+    - name: Create Dashboard admin user manifest
+      copy:
+        dest: /tmp/dashboard-admin.yaml
+        content: |
+          apiVersion: v1
+          kind: ServiceAccount
+          metadata:
+            name: admin-user
+            namespace: kubernetes-dashboard
+          ---
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: ClusterRoleBinding
+          metadata:
+            name: admin-user
+          roleRef:
+            apiGroup: rbac.authorization.k8s.io
+            kind: ClusterRole
+            name: cluster-admin
+          subjects:
+          - kind: ServiceAccount
+            name: admin-user
+            namespace: kubernetes-dashboard
+          ---
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: admin-user-token
+            namespace: kubernetes-dashboard
+            annotations:
+              kubernetes.io/service-account.name: admin-user
+          type: kubernetes.io/service-account-token
+
+    - name: Apply Dashboard admin user
+      shell: kubectl apply -f /tmp/dashboard-admin.yaml
+
+    - name: Wait for admin user token to be created
+      shell: kubectl get secret admin-user-token -n kubernetes-dashboard
+      register: token_check
+      retries: 10
+      delay: 3
+      until: token_check.rc == 0
+
+    # For https access, create self-signed certs and ingress
+    - name: Generate self-signed certificate for dashboard
+      shell: |
+        mkdir -p /etc/kubernetes/certs
+        openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+          -keyout /etc/kubernetes/certs/dashboard.key \
+          -out /etc/kubernetes/certs/dashboard.crt \
+          -subj "/CN=dashboard.local/O=dashboard.local"
+      args:
+        creates: /etc/kubernetes/certs/dashboard.crt
+
+    - name: Create TLS secret for dashboard
+      shell: |
+        kubectl create secret tls dashboard-tls \
+          --cert=/etc/kubernetes/certs/dashboard.crt \
+          --key=/etc/kubernetes/certs/dashboard.key \
+          --namespace kubernetes-dashboard \
+          --dry-run=client -o yaml | kubectl apply -f -
+
+    - name: Create Dashboard Ingress manifest with HTTPS
+      copy:
+        dest: /tmp/dashboard-ingress.yaml
+        content: |
+          apiVersion: networking.k8s.io/v1
+          kind: Ingress
+          metadata:
+            name: kubernetes-dashboard
+            namespace: kubernetes-dashboard
+            annotations:
+              nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+              nginx.ingress.kubernetes.io/ssl-passthrough: "false"
+          spec:
+            ingressClassName: nginx
+            tls:
+            - hosts:
+              - dashboard.local
+              secretName: dashboard-tls
+            rules:
+            - host: dashboard.local
+              http:
+                paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name: kubernetes-dashboard
+                      port:
+                        number: 443
+
+    - name: Apply Dashboard Ingress
+      shell: kubectl apply -f /tmp/dashboard-ingress.yaml
