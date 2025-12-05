@@ -85,6 +85,27 @@ docker compose stop
 ```
 
 ---
+## Helm-based Kubernetes deployment
+
+The automated provisioning (Ansible + Vagrant) bootstraps the Kubernetes nodes only. **It deliberately does _not_ install the application** so that reviewers can run the Helm chart on any compatible cluster (including Minikube/kind). Deploy the stack manually once the cluster is ready:
+
+```bash
+# From the repo root (host) or /vagrant inside the controller VM
+helm upgrade --install myapp ./operation/helm/myapp \
+  -n sms-stack \
+  --create-namespace \
+  --set prometheus.serviceMonitor.enabled=false   # drop this once the Prometheus Operator CRDs exist
+```
+
+Adjustment tips:
+
+- Override ingress hostnames/TLS or container images via `-f my-values.yaml` or `--set app.ingress.host=...`.
+- If you do have the Prometheus Operator installed, omit the `serviceMonitor.enabled=false` flag so the chart creates the CRD objects.
+- To uninstall: `helm uninstall myapp -n sms-stack`.
+
+Keep this flow separate from infrastructure provisioning so the same chart can be installed into other clusters without rerunning Vagrant.
+
+---
 ## How to check if the correct version of Conteinerd, runc and kubutel are downloaded:
 
 Terminal 1:

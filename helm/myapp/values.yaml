@@ -1,0 +1,97 @@
+# Default values for myapp.
+
+global:
+  domain: "example.com"
+  tlsEnabled: true
+
+nameOverride: ""
+fullnameOverride: "sms-stack"
+
+app:
+  name: "frontend"
+  replicaCount: 2
+  image:
+    repository: "ghcr.io/doda25-team10/app-service"
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8080
+    annotations: {}
+  ingress:
+    enabled: true
+    hosts:
+      - name: "stable"
+        enabled: true
+        host: "myapp.example.com"
+        path: "/"
+        tlsSecretName: "myapp-tls"
+      - name: "preview"
+        enabled: false
+        host: "preview.myapp.example.com"
+        path: "/"
+        tlsSecretName: ""
+    annotations: {}
+  env:
+    DB_URL: ""
+    SHARED_STORAGE_PATH: "/mnt/shared"
+    METRICS_ENABLED: "true"
+  probes:
+    liveness: null
+    readiness: null
+  config:
+    SOME_CONFIG_KEY: "default"
+  secret:
+    autogenerate: true
+    smtpUser: ""
+    smtpPassword: ""
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+storage:
+  hostPath:
+    enabled: true
+    pathOnHost: "/mnt/shared"
+    mountPath: "/mnt/shared"
+
+prometheus:
+  enabled: true
+  image:
+    repository: prom/prometheus
+    tag: v2.52.0
+    pullPolicy: IfNotPresent
+  scrapeInterval: "15s"
+  service:
+    type: ClusterIP
+    port: 9090
+  resources: {}
+  serviceMonitor:
+    enabled: true
+    namespace: ""
+    interval: "15s"
+
+grafana:
+  enabled: true
+  image:
+    repository: grafana/grafana
+    tag: "10.4.2"
+    pullPolicy: IfNotPresent
+  adminUser: "admin"
+  adminPassword: "CHANGE_ME"
+  service:
+    type: ClusterIP
+    port: 3000
+  dashboards:
+    defaultHome: "app-metrics-dashboard.json"
+  resources: {}
+
+# --- Future Assignment (traffic mgmt / experimentation) placeholders ---
+experiments:
+  preview:
+    enabled: false
+    weight: 0            # used later for HTTPRoute / Istio split
+    imageOverride: ""    # if empty, reuse app.image.*
+    env: {}

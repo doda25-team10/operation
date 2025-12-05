@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "myapp.appDeploymentName" . }}
+  labels:
+    {{- include "myapp.componentLabels" (dict "root" . "component" "app") | nindent 4 }}
+spec:
+  replicas: {{ .Values.app.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "myapp.componentSelectorLabels" (dict "root" . "component" "app") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "myapp.componentSelectorLabels" (dict "root" . "component" "app") | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ include "myapp.name" . }}
+          image: "{{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}"
+          imagePullPolicy: {{ .Values.app.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.app.service.targetPort }}
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: {{ include "myapp.appConfigMapName" . }}
+            - secretRef:
+                name: {{ include "myapp.appSecretName" . }}
+          {{- with .Values.app.env }}
+          env:
+            {{- range $key, $value := . }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          {{- end }}
+          {{- with .Values.app.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if .Values.storage.hostPath.enabled }}
+          volumeMounts:
+            - name: shared-storage
+              mountPath: {{ .Values.storage.hostPath.mountPath }}
+          {{- end }}
+          {{- $probes := default (dict) .Values.app.probes }}
+          {{- $liveness := default nil $probes.liveness }}
+          {{- if $liveness }}
+          livenessProbe:
+            httpGet:
+              path: {{ default "/metrics" $liveness.path }}
+              port: {{ default "http" $liveness.port }}
+              scheme: {{ default "HTTP" $liveness.scheme }}
+            initialDelaySeconds: {{ default 0 $liveness.initialDelaySeconds }}
+            periodSeconds: {{ default 10 $liveness.periodSeconds }}
+            timeoutSeconds: {{ default 1 $liveness.timeoutSeconds }}
+            successThreshold: {{ default 1 $liveness.successThreshold }}
+            failureThreshold: {{ default 3 $liveness.failureThreshold }}
+          {{- end }}
+          {{- $readiness := default nil $probes.readiness }}
+          {{- if $readiness }}
+          readinessProbe:
+            httpGet:
+              path: {{ default "/metrics" $readiness.path }}
+              port: {{ default "http" $readiness.port }}
+              scheme: {{ default "HTTP" $readiness.scheme }}
+            initialDelaySeconds: {{ default 0 $readiness.initialDelaySeconds }}
+            periodSeconds: {{ default 10 $readiness.periodSeconds }}
+            timeoutSeconds: {{ default 1 $readiness.timeoutSeconds }}
+            successThreshold: {{ default 1 $readiness.successThreshold }}
+            failureThreshold: {{ default 3 $readiness.failureThreshold }}
+          {{- end }}
+      {{- if .Values.storage.hostPath.enabled }}
+      volumes:
+        - name: shared-storage
+          hostPath:
+            path: {{ .Values.storage.hostPath.pathOnHost }}
+            type: DirectoryOrCreate
+      {{- end }}
+      {{- with .Values.app.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.app.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.app.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+

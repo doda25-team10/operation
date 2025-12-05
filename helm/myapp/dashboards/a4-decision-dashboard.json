@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 39,
+  "title": "A4 Decision Dashboard",
+  "version": 1,
+  "tags": [
+    "experimentation",
+    "assignment-4"
+  ],
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Traffic Split Stable",
+      "targets": [
+        {
+          "expr": "avg(myapp_variant_traffic_split{variant=\"stable\"})",
+          "legendFormat": "stable"
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 6
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Traffic Split Preview",
+      "targets": [
+        {
+          "expr": "avg(myapp_variant_traffic_split{variant=\"preview\"})",
+          "legendFormat": "preview"
+        }
+      ],
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 6
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Conversion Rate per Variant",
+      "targets": [
+        {
+          "expr": "rate(myapp_conversion_total{variant=\"stable\"}[15m])",
+          "legendFormat": "stable"
+        },
+        {
+          "expr": "rate(myapp_conversion_total{variant=\"preview\"}[15m])",
+          "legendFormat": "preview"
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 6,
+        "w": 24,
+        "h": 8
+      }
+    }
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  }
+}
+
