@@ -31,7 +31,7 @@
 | Team Member | Contribution Description | Merged PRs (Created) | Approved PRs (Reviewed) |
 | :--- | :--- | :--- | :--- |
 | **Andrea** | Worked on the Monitoring part of the Assignment 3| https://github.com/doda25-team10/operation/pull/25 | https://github.com/doda25-team10/operation/pull/21 |
-| **Yi** | Focused on running the containers, providing documentation covering the necessary steps. This addressed point **F7**. | https://github.com/doda25-team10/operation/pull/4 | https://github.com/doda25-team10/lib-version/pull/4 |
+| **Yi** | Worked on step 22, the kubernetes dashboard, for A2. Had to delay working on it due to it being the last steps.  | https://github.com/doda25-team10/operation/pull/26 | https://github.com/doda25-team10/operation/pull/20, https://github.com/doda25-team10/operation/pull/19 |
 | **Maciej** | Worked on Helm chart from Assignment 3. The Pr is still open, because we had a2 to catch up with  | https://github.com/doda25-team10/operation/pull/24 | https://github.com/doda25-team10/operation/pull/23 |
 | **Denis** | Worked on A2 by implementing steps 13, 14, 16 and 17. Worked on A3 and implemented metrics for "Enable Monitoring" part. | https://github.com/doda25-team10/operation/pull/20, https://github.com/doda25-team10/operation/pull/22, https://github.com/doda25-team10/app-service/pull/8 | https://github.com/doda25-team10/operation/pull/21 |
 | **Paul** | Worked on A2 steps 20 and 21 | https://github.com/doda25-team10/operation/pull/23 | https://github.com/doda25-team10/operation/pull/22 |
