@@ -1,0 +1,50 @@
+{{- if .Values.app.ingress.enabled }}
+{{- $hosts := list -}}
+{{- range .Values.app.ingress.hosts }}
+  {{- $enabled := default true .enabled }}
+  {{- $host := .host | default "" }}
+  {{- if and $enabled $host }}
+    {{- $cfg := dict "host" $host "path" (default "/" .path) "tlsSecretName" .tlsSecretName }}
+    {{- $hosts = append $hosts $cfg }}
+  {{- end }}
+{{- end }}
+{{- if not $hosts }}
+  {{- $defaultHost := printf "%s.%s" (include "myapp.name" .) .Values.global.domain }}
+  {{- $hosts = list (dict "host" $defaultHost "path" "/" "tlsSecretName" "") }}
+{{- end }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "myapp.componentName" (dict "root" . "component" "app-ingress") }}
+  labels:
+    {{- include "myapp.componentLabels" (dict "root" . "component" "app") | nindent 4 }}
+  {{- with .Values.app.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  rules:
+    {{- range $hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          - path: {{ .path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "myapp.appServiceName" $ }}
+                port:
+                  number: {{ $.Values.app.service.port }}
+    {{- end }}
+  {{- if .Values.global.tlsEnabled }}
+  tls:
+    {{- range $hosts }}
+      {{- if .tlsSecretName }}
+    - hosts:
+        - {{ .host | quote }}
+      secretName: {{ .tlsSecretName }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+

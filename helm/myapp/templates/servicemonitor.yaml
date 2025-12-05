@@ -1,0 +1,22 @@
+{{- if and .Values.prometheus.enabled .Values.prometheus.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "myapp.componentName" (dict "root" . "component" "servicemonitor") }}
+  labels:
+    {{- include "myapp.componentLabels" (dict "root" . "component" "monitoring") | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "myapp.componentSelectorLabels" (dict "root" . "component" "app") | nindent 6 }}
+  {{- with .Values.prometheus.serviceMonitor.namespace }}
+  namespaceSelector:
+    matchNames:
+      - {{ . }}
+  {{- end }}
+  endpoints:
+    - interval: {{ .Values.prometheus.serviceMonitor.interval }}
+      port: http
+      path: /metrics
+{{- end }}
+
