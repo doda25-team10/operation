@@ -48,17 +48,10 @@
         mode: '0644'
 
     # Step 15: Install Flannel Pod Network
-    - name: Download Flannel manifest
-      shell: curl -fsSL https://github.com/flannel-io/flannel/releases/download/v0.26.7/kube-flannel.yml -o /tmp/kube-flannel.yml
-      args:
-        creates: /tmp/kube-flannel.yml
-      tags: [ 'flannel' ]
-
-    - name: Add --iface=eth1 to Flannel container args
-      replace:
-        path: /tmp/kube-flannel.yml
-        regexp: '(^\s+args:\s*)$'
-        replace: '\1\n      - --iface=eth1'
+    - name: Copy Flannel manifest
+      copy:
+        src: files/kube-flannel.yml
+        dest: /tmp/kube-flannel.yml
       tags: [ 'flannel' ]
 
     - name: Apply Flannel network
