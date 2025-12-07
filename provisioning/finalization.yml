@@ -173,3 +173,58 @@
 
     - name: Apply Dashboard Ingress
       shell: kubectl apply -f /tmp/dashboard-ingress.yaml
+
+    # Step 23: Install Istio
+    - name: Check for Istio download
+      stat:
+        path: /home/vagrant/istio-1.25.2
+      register: istio_dir
+
+    - name: Download Istio
+      shell: |
+        cd /home/vagrant
+        curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.25.2 sh -
+      when: not istio_dir.stat.exists
+
+    - name: Add istioctl to PATH for vagrant user
+      lineinfile:
+        path: /home/vagrant/.bashrc
+        line: 'export PATH=$PATH:/home/vagrant/istio-1.25.2/bin'
+        create: yes
+
+    - name: Check for Itio installation
+      shell: kubectl get namespace istio-system
+      register: istio_namespace
+      failed_when: false
+      changed_when: false
+
+    - name: Create Istio configuration with fixed IP
+      copy:
+        dest: /tmp/istio-config.yaml
+        content: |
+          apiVersion: install.istio.io/v1alpha1
+          kind: IstioOperator
+          spec:
+            components:
+              ingressGateways:
+              - name: istio-ingressgateway
+                enabled: true
+                k8s:
+                  service:
+                    loadBalancerIP: 192.168.56.91
+      when: istio_namespace.rc != 0
+
+    - name: Install Istio with configuration
+      shell: /home/vagrant/istio-1.25.2/bin/istioctl install -y -f /tmp/istio-config.yaml
+      when: istio_namespace.rc != 0
+
+    - name: Wait for Istio ingress gateway to be ready
+      shell: >
+        kubectl wait --namespace istio-system
+        --for=condition=ready pod
+        --selector=app=istio-ingressgateway
+        --timeout=120s
+      register: istio_wait
+      retries: 5
+      delay: 10
+      until: istio_wait.rc == 0
