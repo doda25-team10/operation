@@ -5,7 +5,7 @@ metadata:
   labels:
     {{- include "myapp.componentLabels" (dict "root" . "component" "app") | nindent 4 }}
 data:
-  {{- range $key, $value := .Values.app.config }}
-  {{ $key }}: {{ $value | quote }}
-  {{- end }}
 
+  MODEL_HOST: "http://{{ .Values.model.name }}:{{ .Values.model.service.port }}"
+
+  PORT: {{ .Values.app.service.targetPort | quote }}
