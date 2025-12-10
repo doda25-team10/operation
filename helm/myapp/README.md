@@ -14,12 +14,11 @@ helm/myapp/
   templates/
     _helpers.tpl
     app-*.yaml (deployment/service/ingress/configmap/secret)
-    prometheus-*.yaml
     grafana-*.yaml
     servicemonitor.yaml
 ```
 
-Running `helm install myapp ./helm/myapp` (or `helm upgrade --install`) is the single entrypoint for deploying the stack into any Kubernetes cluster (Minikube, kind, managed cloud, etc.).
+Running `helm install myapp ./helm/myapp/ -n <any-namespace> --create-namespace` (or `helm upgrade --install`) is the single entrypoint for deploying the stack into any Kubernetes cluster (Minikube, kind, managed cloud, etc.). Choose the cluster you want to install in by replacing \<any-namespace\> with any (new) cluster's name.
 
 ## Prerequisites
 
@@ -35,7 +34,6 @@ All knobs live in `values.yaml`. Key sections:
 - `global.domain` / `global.tlsEnabled`: control default hostnames and TLS blocks across the chart.
 - `app.*`: image, replica count, env vars, ConfigMap data, SMTP credentials (stored via stringData), and the ingress/service definition. By default the ingress renders both a **stable** host (enabled) and a **preview** host (disabled) via `app.ingress.hosts`. Leave `app.secret.smtpPassword` empty (with `autogenerate: true`) to have Helm create a random password during install.
 - `storage.hostPath.*`: path on the node and mount path inside the pod (defaults to `/mnt/shared`).
-- `prometheus.*`: toggles the standalone Prometheus deployment/service, scrape interval, ServiceMonitor emission, and the container image.
 - `grafana.*`: manages Grafana image, admin credentials, service type, and which dashboard file should act as the default home.
 - `experiments.preview.*`: future Assignment 4 knobs (currently disabled) that will control preview traffic weight, image overrides, or extra env vars once experimentation features are added.
 
@@ -78,8 +76,7 @@ Install with:
 helm upgrade --install myapp ./operation/helm/myapp \
   --namespace sms-stack \
   --create-namespace \
-  -f values.prod.yaml \
-  --set prometheus.serviceMonitor.enabled=false  # drop this once the Prometheus Operator CRDs exist
+  -f values.prod.yaml
 ```
 
 > **Note:** `myapp` above is the Helm release name. If you pick a different release name (e.g. `helm upgrade --install sms-stack ./operation/helm/myapp ...`), replace `myapp` everywhere accordingly. Many resource names are `<release>-<component>`, so use `kubectl get svc -n sms-stack` to see the exact service names before port-forwarding.
