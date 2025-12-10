@@ -22,3 +22,8 @@ version: 0.3.0
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
 appVersion: "0.1.0"
+
+dependencies:
+  - name: kube-prometheus-stack
+    version: "80.2.0" # latest release as of writing, using one version for consistency
+    repository: https://prometheus-community.github.io/helm-charts

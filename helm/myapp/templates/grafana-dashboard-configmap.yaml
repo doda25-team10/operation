@@ -33,7 +33,7 @@ data:
       - name: Prometheus
         type: prometheus
         access: proxy
-        url: http://{{ include "myapp.componentName" (dict "root" . "component" "prometheus-svc") }}:{{ .Values.prometheus.service.port }}
+        url: http://{{ .Release.Name }}-kube-prometheus-stack-prometheus:9090
         isDefault: true
 {{- end }}
 

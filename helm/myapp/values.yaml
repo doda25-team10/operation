@@ -20,7 +20,7 @@ app:
     targetPort: 8080
     annotations: {}
   ingress:
-    enabled: true
+    enabled: false # Temporarily disabled due to getting failed calling webhook error
     hosts:
       - name: "stable"
         enabled: true
@@ -57,21 +57,18 @@ storage:
     pathOnHost: "/mnt/shared"
     mountPath: "/mnt/shared"
 
-prometheus:
+kube-prometheus-stack:
   enabled: true
-  image:
-    repository: prom/prometheus
-    tag: v2.52.0
-    pullPolicy: IfNotPresent
-  scrapeInterval: "15s"
-  service:
-    type: ClusterIP
-    port: 9090
-  resources: {}
-  serviceMonitor:
-    enabled: true
-    namespace: ""
-    interval: "15s"
+  
+  prometheus:
+    prometheusSpec:
+      serviceMonitorSelector:
+        matchLabels:
+          monitoring: "app"
+      
+      # How often to scrape metrics
+      scrapeInterval: 15s
+  
 
 grafana:
   enabled: true
