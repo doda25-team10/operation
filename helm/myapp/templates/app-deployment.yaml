@@ -29,16 +29,11 @@ spec:
             - secretRef:
                 name: {{ include "myapp.appSecretName" . }}
 
-          {{- if .Values.global.storage.enabled }}
           volumeMounts:
             - name: shared-storage
               mountPath: {{ .Values.global.storage.hostPath }}
-          {{- end }}
-
-      {{- if .Values.global.storage.enabled }}
       volumes:
         - name: shared-storage
           hostPath:
             path: {{ .Values.global.storage.hostPath }}
             type: DirectoryOrCreate
-      {{- end }}
