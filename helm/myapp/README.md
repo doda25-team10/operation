@@ -9,17 +9,20 @@ helm/myapp/
     app-metrics-dashboard.json
     a4-decision-dashboard.json
   prometheus/
-    prometheus-config.yaml
     alerting-rules.yaml
   templates/
     _helpers.tpl
     app-*.yaml (deployment/service/ingress/configmap/secret)
-    prometheus-*.yaml
+    model-*.yaml
     grafana-*.yaml
     servicemonitor.yaml
 ```
 
 Running `helm install myapp ./helm/myapp` (or `helm upgrade --install`) is the single entrypoint for deploying the stack into any Kubernetes cluster (Minikube, kind, managed cloud, etc.).
+Before being able to run this however, it might be necessary to run `helm dependency build ./helm/myapp` if you get an error.
+
+Keep in mind, the Grafana part of the helm charts is NOT yet implemented. If you start the implementation, you can delete/change/add any and all Grafana related
+files you deem necessary
 
 ## Prerequisites
 
@@ -32,18 +35,21 @@ Running `helm install myapp ./helm/myapp` (or `helm upgrade --install`) is the s
 
 All knobs live in `values.yaml`. Key sections:
 
-- `global.domain` / `global.tlsEnabled`: control default hostnames and TLS blocks across the chart.
+- `global.domain`: control default hostnames
+- `global.storage.hostPath`: path on the node and mount path inside the pod (defaults to `/mnt/shared`).
 - `app.*`: image, replica count, env vars, ConfigMap data, SMTP credentials (stored via stringData), and the ingress/service definition. By default the ingress renders both a **stable** host (enabled) and a **preview** host (disabled) via `app.ingress.hosts`. Leave `app.secret.smtpPassword` empty (with `autogenerate: true`) to have Helm create a random password during install.
-- `storage.hostPath.*`: path on the node and mount path inside the pod (defaults to `/mnt/shared`).
-- `prometheus.*`: toggles the standalone Prometheus deployment/service, scrape interval, ServiceMonitor emission, and the container image.
-- `grafana.*`: manages Grafana image, admin credentials, service type, and which dashboard file should act as the default home.
-- `experiments.preview.*`: future Assignment 4 knobs (currently disabled) that will control preview traffic weight, image overrides, or extra env vars once experimentation features are added.
+- `model.*`: Values similar to the app, without any ingress or secrets.
+- `prometheus.*`: toggles the standalone Prometheus deployment/service, scrape interval and ServiceMonitor emission
+- `grafana.*`: manages Grafana image, admin credentials, service type, and which dashboard file should act as the default home. To be correctly implemented!
 
 Example production overlay:
 
 ```yaml
 global:
-  domain: "prod.example.com"
+  domain: "example.com"
+  storage:
+    enabled: true
+    hostPath: "/mnt/shared"
 app:
   image:
     tag: "2025.12.04"
@@ -57,13 +63,6 @@ app:
         enabled: true
         host: "canary.prod.example.com"
         tlsSecretName: "spam-preview-tls"
-experiments:
-  preview:
-    enabled: true
-    weight: 50
-storage:
-  hostPath:
-    pathOnHost: "/var/lib/myapp/shared"
 prometheus:
   serviceMonitor:
     namespace: observability
@@ -75,19 +74,16 @@ Install with:
 
 ```bash
 # from the repo root
-helm upgrade --install myapp ./operation/helm/myapp \
-  --namespace sms-stack \
-  --create-namespace \
-  -f values.prod.yaml \
-  --set prometheus.serviceMonitor.enabled=false  # drop this once the Prometheus Operator CRDs exist
+helm install myapp ./helm/myapp --namespace sms-stack --create-namespace
 ```
 
-> **Note:** `myapp` above is the Helm release name. If you pick a different release name (e.g. `helm upgrade --install sms-stack ./operation/helm/myapp ...`), replace `myapp` everywhere accordingly. Many resource names are `<release>-<component>`, so use `kubectl get svc -n sms-stack` to see the exact service names before port-forwarding.
+> **Note:** `myapp` above is the Helm release name. If you pick a different release name (e.g. `helm install sms-stack ./helm/myapp --namespace sms-stack --create-namespace`), replace `myapp` everywhere accordingly. Many resource names are `<release>-<component>`, so use `kubectl get svc -n sms-stack` to see the exact service names before port-forwarding.
 
 ## Troubleshooting tips
 
-- `kubectl -n sms-stack port-forward svc/<release>-myapp-app-svc 8080:80` for quick local validation.
+- `kubectl -n sms-stack port-forward svc/<release-name>-app-svc 8080:80` for quick local validation of the app
+- `kubectl -n sms-stack port-forward svc/<release-name>-kube-prometheus-stac-prometheus 9090:9090` for quick local validation of the app
     
-- `kubectl -n sms-stack logs deploy/<release>-myapp-prometheus` to inspect Prometheus scrape errors.
+- `kubectl -n sms-stack logs deploy/<release-name>-myapp-prometheus` to inspect Prometheus scrape errors.
 - If dashboards fail to load, verify the `grafana-dashboard-configmap` exists and the Grafana pod mounts `/var/lib/grafana/dashboards`.
 

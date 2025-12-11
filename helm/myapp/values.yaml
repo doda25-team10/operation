@@ -6,16 +6,13 @@ global:
     enabled: true
     hostPath: "/mnt/shared"
 
-nameOverride: ""
-fullnameOverride: "sms-stack"
-
 app:
   name: "app-service"
   replicaCount: 2
   image:
     repository: "ghcr.io/doda25-team10/app-service"
     tag: "latest"
-    pullPolicy: Always
+    pullPolicy: IfNotPresent
   service:
     type: ClusterIP
     port: 80
