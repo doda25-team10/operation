@@ -35,9 +35,6 @@ app:
         path: "/"
         tlsSecretName: ""
     annotations: {}
-  secret:
-    smtpUser: ""
-    smtpPassword: ""
   env: { }
   resources: { }
 
