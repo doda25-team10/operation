@@ -1,0 +1,58 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-service
+  namespace: monitoring
+  labels:
+    app: app-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-service
+  template:
+    metadata:
+      labels:
+        app: app-service
+    spec:
+      containers:
+      - name: app-service
+        image: app-service:local
+        ports:
+          - containerPort: 8080
+        env:
+          - name: MODEL_HOST
+            value: "http://model-service:8081"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-service
+  namespace: monitoring
+  labels:
+    app: app-service
+spec:
+  type: ClusterIP
+  selector:
+    app: app-service
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: app-service-sm
+  namespace: monitoring
+  labels:
+    release: myprom   # must match Prometheus helm release
+spec:
+  selector:
+    matchLabels:
+      app: app-service
+  endpoints:
+    - port: http
+      interval: 5s
+      path: /sms/metrics
