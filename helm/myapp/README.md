@@ -18,9 +18,6 @@ helm/myapp/
     servicemonitor.yaml
 ```
 
-Running `helm install myapp ./helm/myapp` (or `helm upgrade --install`) is the single entrypoint for deploying the stack into any Kubernetes cluster (Minikube, kind, managed cloud, etc.).
-Before being able to run this however, it might be necessary to run `helm dependency build ./helm/myapp` if you get an error.
-
 Keep in mind, the Grafana part of the helm charts is NOT yet implemented. If you start the implementation, you can delete/change/add any and all Grafana related
 files you deem necessary
 
@@ -76,6 +73,7 @@ Install with:
 # from the repo root
 helm install myapp ./helm/myapp --namespace sms-stack --create-namespace
 ```
+Before being able to run this however, it might be necessary to run `helm dependency build ./helm/myapp` if you get an error.
 
 > **Note:** `myapp` above is the Helm release name. If you pick a different release name (e.g. `helm install sms-stack ./helm/myapp --namespace sms-stack --create-namespace`), replace `myapp` everywhere accordingly. Many resource names are `<release>-<component>`, so use `kubectl get svc -n sms-stack` to see the exact service names before port-forwarding.
 
