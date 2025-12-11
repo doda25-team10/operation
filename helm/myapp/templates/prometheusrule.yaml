@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: app-service-alert
+  namespace: {{ .Release.Namespace }}
+spec:
+  groups:
+    - name: alert-rules
+      interval: 15s
+      rules:
+        - alert: TooManyRequests
+          expr: sum(rate(sms_predictions_total[1m])) * 60 > 15
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Too many requests to app-service"
+            description: "The service is receiving {{ $value }} predictions per minute (threshold: 15 for 2 minutes). Requests are the sum of both \"spam\" and \"ham\" requests."
+
