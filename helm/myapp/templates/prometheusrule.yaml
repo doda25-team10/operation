@@ -3,6 +3,10 @@ kind: PrometheusRule
 metadata:
   name: app-service-alert
   namespace: {{ .Release.Namespace }}
+  labels:
+    prometheus: kube-prometheus   
+    role: alert-rules               
+    release: {{ .Release.Name }}
 spec:
   groups:
     - name: alert-rules
@@ -15,5 +19,5 @@ spec:
             severity: warning
           annotations:
             summary: "Too many requests to app-service"
-            description: "The service is receiving {{ $value }} predictions per minute (threshold: 15 for 2 minutes). Requests are the sum of both \"spam\" and \"ham\" requests."
+            description: "The service is receiving {{ `{{ $value }}` }} predictions per minute (threshold: 15 for 2 minutes). Requests are the sum of both \"spam\" and \"ham\" requests."
 
