@@ -2,66 +2,66 @@
   "schemaVersion": 39,
   "title": "MyApp Metrics",
   "version": 1,
-  "tags": [
-    "myapp",
-    "team-b"
-  ],
+  "tags": ["myapp", "team-b"],
+  "timezone": "browser",
+  "templating": {
+    "list": [
+      {
+        "name": "interval",
+        "type": "interval",
+        "label": "Time Interval",
+        "query": "1m,5m,10m,30m,1h",
+        "current": { "selected": true, "text": "5m", "value": "5m" },
+        "hide": 0,
+        "auto": false
+      }
+    ]
+  },
   "panels": [
+    {
+      "type": "gauge",
+      "title": "Current Error Rate",
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{job=\"myapp\",status=~\"5..\"}[$interval]))",
+          "legendFormat": "Errors/sec"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 8 }
+    },
     {
       "type": "timeseries",
       "title": "Request Rate",
       "targets": [
         {
-          "expr": "sum(rate(http_server_requests_seconds_count{job=\"myapp\"}[5m]))",
+          "expr": "sum(rate(http_server_requests_seconds_count{job=\"myapp\"}[$interval]))",
           "legendFormat": "All"
         }
       ],
-      "gridPos": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 8
-      }
+      "gridPos": { "x": 6, "y": 0, "w": 18, "h": 8 }
     },
     {
       "type": "timeseries",
-      "title": "Error Rate (5xx)",
+      "title": "Error Rate Over Time",
       "targets": [
         {
-          "expr": "sum(rate(http_server_requests_seconds_count{job=\"myapp\",status=~\"5..\"}[5m]))",
+          "expr": "sum(rate(http_server_requests_seconds_count{job=\"myapp\",status=~\"5..\"}[$interval]))",
           "legendFormat": "5xx"
         }
       ],
-      "gridPos": {
-        "x": 12,
-        "y": 0,
-        "w": 12,
-        "h": 8
-      }
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 }
     },
     {
       "type": "timeseries",
       "title": "Latency p95",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{job=\"myapp\"}[5m])) by (le))",
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{job=\"myapp\"}[$interval])) by (le))",
           "legendFormat": "p95"
         }
       ],
-      "gridPos": {
-        "x": 0,
-        "y": 8,
-        "w": 24,
-        "h": 8
-      }
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 }
     }
   ],
-  "templating": {
-    "list": []
-  },
-  "time": {
-    "from": "now-6h",
-    "to": "now"
-  }
+  "time": { "from": "now-6h", "to": "now" }
 }
-

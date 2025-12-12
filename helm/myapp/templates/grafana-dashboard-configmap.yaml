@@ -6,10 +6,10 @@ metadata:
   labels:
     {{- include "myapp.componentLabels" (dict "root" . "component" "grafana") | nindent 4 }}
 data:
-  app-metrics-dashboard.json: |
-    {{- .Files.Get "dashboards/app-metrics-dashboard.json" | nindent 4 }}
-  a4-decision-dashboard.json: |
-    {{- .Files.Get "dashboards/a4-decision-dashboard.json" | nindent 4 }}
+{{- range $path, $_ := .Files.Glob "dashboards/*.json" }}
+  {{ base $path }}: |-
+{{ $.Files.Get $path | indent 4 }}
+{{- end }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -36,4 +36,3 @@ data:
         url: http://{{ include "myapp.componentName" (dict "root" . "component" "prometheus-svc") }}:{{ .Values.prometheus.service.port }}
         isDefault: true
 {{- end }}
-
