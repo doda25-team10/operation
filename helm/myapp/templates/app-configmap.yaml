@@ -5,7 +5,4 @@ metadata:
   labels:
     {{- include "myapp.componentLabels" (dict "root" . "component" "app") | nindent 4 }}
 data:
-  {{- range $key, $value := .Values.app.config }}
-  {{ $key }}: {{ $value | quote }}
-  {{- end }}
-
+  SERVER_PORT: {{ .Values.app.service.targetPort | quote }}

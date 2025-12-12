@@ -97,3 +97,16 @@ Frequently used names.
 {{- define "myapp.grafanaProvisioningName" -}}
 {{ include "myapp.componentName" (dict "root" . "component" "grafana-provisioning") }}
 {{- end }}
+{{/* ... existing app definitions ... */}}
+
+{{- define "myapp.modelDeploymentName" -}}
+{{ include "myapp.componentName" (dict "root" . "component" "model") }}
+{{- end }}
+
+{{- define "myapp.modelServiceName" -}}
+{{ include "myapp.componentName" (dict "root" . "component" .Values.model.name) }}
+{{- end }}
+
+{{- define "myapp.modelConfigMapName" -}}
+{{ include "myapp.componentName" (dict "root" . "component" "model-config") }}
+{{- end }}
