@@ -26,7 +26,7 @@
 | **Aadesh** | Worked on **A2** by implementing step 7| [https://github.com/doda25-team10/app-service/pull/18](https://github.com/doda25-team10/operation/pull/18) | [https://github.com/doda25-team10/operation/pull/16](https://github.com/doda25-team10/operation/pull/16) |
 
 
-## Week Q2.3 (Dec 1+)
+## Week Q2.4 (Dec 1+)
 
 | Team Member | Contribution Description | Merged PRs (Created) | Approved PRs (Reviewed) |
 | :--- | :--- | :--- | :--- |
@@ -35,4 +35,14 @@
 | **Maciej** | Worked on Helm chart from Assignment 3. The Pr is still open, because we had a2 to catch up with  | https://github.com/doda25-team10/operation/pull/24 | https://github.com/doda25-team10/operation/pull/23 |
 | **Denis** | Worked on A2 by implementing steps 13, 14, 16 and 17. Worked on A3 and implemented metrics for "Enable Monitoring" part. | https://github.com/doda25-team10/operation/pull/20, https://github.com/doda25-team10/operation/pull/22, https://github.com/doda25-team10/app-service/pull/8 | https://github.com/doda25-team10/operation/pull/21 |
 | **Paul** | Worked on A2 steps 20 and 21 | https://github.com/doda25-team10/operation/pull/23 | https://github.com/doda25-team10/operation/pull/22 |
-| **Aadesh** |  Worked on A2 steps 15, 18 and 19| [https://github.com/doda25-team10/operation/pull/21](https://github.com/doda25-team10/operation/pull/21) | [https://github.com/doda25-team10/model-service/pull/20](https://github.com/doda25-team10/operation/pull/20) |
+
+## Week Q2.5 (Dec 8+)
+
+| Team Member | Contribution Description | Merged PRs (Created) | Approved PRs (Reviewed) |
+| :--- | :--- | :--- | :--- |
+| **Andrea** | Worked on **A4** by writing documentation of our application. | [https://github.com/doda25-team10/operation/pull/29](https://github.com/doda25-team10/operation/pull/29) | [https://github.com/doda25-team10/operation/pull/28](https://github.com/doda25-team10/operation/pull/28), [https://github.com/doda25-team10/operation/pull/32](https://github.com/doda25-team10/operation/pull/32)  |
+| **Yi** | Worked on **A2** Istio installation and **A3* alert monitoring setup | [https://github.com/doda25-team10/operation/pull/27](https://github.com/doda25-team10/operation/pull/27), [https://github.com/doda25-team10/operation/pull/32](https://github.com/doda25-team10/operation/pull/32) | [https://github.com/doda25-team10/operation/pull/24](https://github.com/doda25-team10/operation/pull/24), [https://github.com/doda25-team10/operation/pull/25](https://github.com/doda25-team10/operation/pull/25) |
+| **Maciej** | Worked on **A3** by implementing the Helm chart installation| [https://github.com/doda25-team10/operation/pull/24](https://github.com/doda25-team10/operation/pull/24) | [https://github.com/doda25-team10/operation/pull/29](https://github.com/doda25-team10/operation/pull/29), [https://github.com/doda25-team10/operation/pull/26](https://github.com/doda25-team10/operation/pull/26)|
+| **Denis** | Worked on **A4** by proposing an extension to the project | [https://github.com/doda25-team10/operation/pull/31](https://github.com/doda25-team10/operation/pull/31) | [https://github.com/doda25-team10/operation/pull/29](https://github.com/doda25-team10/operation/pull/29) |
+| **Paul** |  Worked on **A3** by implementing the Grafana dashboard | [https://github.com/doda25-team10/operation/pull/30](https://github.com/doda25-team10/operation/pull/30) | [https://github.com/doda25-team10/operation/pull/27](https://github.com/doda25-team10/operation/pull/27) |
+| **Aadesh** | Worked on **A3** by finalising the migration to Helm | [https://github.com/doda25-team10/operation/pull/28](https://github.com/doda25-team10/operation/pull/28), [https://github.com/doda25-team10/app/pull/9](https://github.com/doda25-team10/app/pull/9) | [https://github.com/doda25-team10/operation/pull/29](https://github.com/doda25-team10/operation/pull/29) |
