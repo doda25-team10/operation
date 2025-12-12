@@ -69,6 +69,16 @@ kube-prometheus-stack:
       
       # How often to scrape metrics
       scrapeInterval: 15s
+
+  alertmanager:
+    enabled: true
+    alertmanagerSpec:
+      # Using a custom config instead of the default one, because of merge issues with Helm
+      useExistingSecret: true
+      configSecret: alertmanager-myapp-custom-config
+
+alertmanager:
+  smtpPassword: ""  # Placeholder - must provide via --set
   
 
 grafana:

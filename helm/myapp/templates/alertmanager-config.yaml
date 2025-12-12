@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: alertmanager-myapp-custom-config
+  namespace: {{ .Release.Namespace }}
+type: Opaque
+stringData:
+  alertmanager.yaml: |
+    global:
+      resolve_timeout: 5m
+      smtp_smarthost: 'smtp.gmail.com:587'
+      smtp_from: 'testcheckerrr@gmail.com'
+      smtp_auth_username: 'testcheckerrr@gmail.com'
+      smtp_auth_password: {{ .Values.alertmanager.smtpPassword | quote }}
+      smtp_require_tls: true
+    
+    route:
+      receiver: 'devs'
+      group_by: ['alertname']
+      group_wait: 10s
+      group_interval: 5m
+      repeat_interval: 12h
+    
+    receivers:
+      - name: 'devs'
+        email_configs:
+          - to: 'yichen12321@hotmail.com'
+            send_resolved: true
