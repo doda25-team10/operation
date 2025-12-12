@@ -38,18 +38,18 @@ The alertmanager requires an email to send the emails. This requires an app pass
 
 ```
 helm install myapp ./helm/myapp/ \
-  -n monitoring \
+  -n sms-stack \
   --create-namespace \
   --set alertmanager.smtpPassword='XXXX XXXX XXXX XXXX'
 ```
 
-Running the command above (or using `helm upgrade --install`) is the single entrypoint for deploying the stack into any Kubernetes cluster (Minikube, kind, managed cloud, etc.). Choose the namespace you want to create by replacing `monitoring` with \<any-namespace\>. It takes a few **minutes** for everything to load correctly.
+Running the command above (or using `helm upgrade --install`) is the single entrypoint for deploying the stack into any Kubernetes cluster (Minikube, kind, managed cloud, etc.). Choose the namespace you want to create by replacing `sms-stack` with \<any-namespace\>. It takes a few **minutes** for everything to load correctly.
 
 > **Note:** `myapp` above is the Helm release name. If you pick a different release name (e.g. `helm upgrade --install sms-stack ./operation/helm/myapp ...`), replace `myapp` everywhere accordingly. Many resource names are `<release>-<component>`, so use `kubectl get svc -n sms-stack` to see the exact service names before port-forwarding.
 
 ## Testing out alertmanager
 Check if pods are running:
-`kubectl get pods -n monitoring`
+`kubectl get pods -n sms-stack`
 
 Expected result to be similar to:
 ```
@@ -66,7 +66,7 @@ prometheus-myapp-kube-prometheus-stac-prometheus-0       2/2     Running   42 (3
 ---
 
 Check if alertmanager is ready:
-`kubectl get alertmanager -n monitoring`
+`kubectl get alertmanager -n sms-stack`
 
 Expected result to be similar to:
 ```
@@ -77,7 +77,7 @@ myapp-kube-prometheus-stac-alertmanager   v0.29.0   1          1       True     
 ---
 
 Check the config to see if your emails have been applied correctly:
-`kubectl exec -n monitoring alertmanager-myapp-kube-prometheus-stac-alertmanager-0 -c alertmanager -- cat /etc/alertmanager/config_out/alertmanager.env.yaml`
+`kubectl exec -n sms-stack alertmanager-myapp-kube-prometheus-stac-alertmanager-0 -c alertmanager -- cat /etc/alertmanager/config_out/alertmanager.env.yaml`
 
 Expected result:
 ```
@@ -104,7 +104,7 @@ templates: []
 ---
 
 Access Prometheus: `# Port-forward to Prometheus
-kubectl port-forward -n monitoring svc/myapp-kube-prometheus-stac-prometheus 9090:9090`
+kubectl port-forward -n sms-stack svc/myapp-kube-prometheus-stac-prometheus 9090:9090`
 Wait a few a bit, then open: http://localhost:9090/alerts
 
 When you open the page you should see the top row with:
@@ -116,7 +116,7 @@ TooManyRequests
 The TooManyRequests should be currently `inactive`. The alert fires when the service receives >15 requests/minute for 2 minutes straight.
 
 Open a new terminal and port forward to the application:
-`kubectl port-forward -n monitoring svc/app-service 8080:8080`
+`kubectl port-forward -n sms-stack svc/app-service 8080:8080`
 
 To trigger the alert we will be spamming requests/generate traffic. In another terminal execute:
 ```
