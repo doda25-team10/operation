@@ -2,66 +2,96 @@
   "schemaVersion": 39,
   "title": "MyApp Metrics",
   "version": 1,
-  "tags": [
-    "myapp",
-    "team-b"
-  ],
+  "tags": ["myapp", "excellent"],
+  "timezone": "browser",
+  "templating": {
+    "list": [
+      {
+        "name": "datasource",
+        "type": "datasource",
+        "pluginId": "prometheus",
+        "label": "Data Source",
+        "query": "prometheus",
+        "refresh": "5s",
+        "current": {},
+        "hide": 0,
+        "includeAll": false,
+        "multi": false
+      },
+      {
+        "name": "interval",
+        "type": "interval",
+        "label": "Time Interval",
+        "query": "1m,5m,10m,30m,1h",
+        "current": { "selected": true, "text": "5m", "value": "5m" },
+        "hide": 0,
+        "auto": false
+      }
+    ]
+  },
   "panels": [
     {
-      "type": "timeseries",
-      "title": "Request Rate",
+      "type": "gauge",
+      "title": "Last SMS Length (Max)",
+      "description": "Shows the length of the longest SMS recently processed by any pod.",
       "targets": [
         {
-          "expr": "sum(rate(http_server_requests_seconds_count{job=\"myapp\"}[5m]))",
-          "legendFormat": "All"
+          "expr": "max(sms_last_text_length)",
+          "legendFormat": "Max Length"
         }
       ],
-      "gridPos": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 8
-      }
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 160,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 140 },
+              { "color": "red", "value": 160 }
+            ]
+          }
+        }
+      },
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 8 }
     },
     {
       "type": "timeseries",
-      "title": "Error Rate (5xx)",
+      "title": "Prediction Traffic (Spam vs Ham)",
+      "description": "Total prediction requests per second, aggregated across all pods.",
       "targets": [
         {
-          "expr": "sum(rate(http_server_requests_seconds_count{job=\"myapp\",status=~\"5..\"}[5m]))",
-          "legendFormat": "5xx"
+          "expr": "sum by (result) (rate(sms_predictions_total[$interval]))",
+          "legendFormat": "{{result}}"
         }
       ],
-      "gridPos": {
-        "x": 12,
-        "y": 0,
-        "w": 12,
-        "h": 8
-      }
+      "gridPos": { "x": 6, "y": 0, "w": 18, "h": 8 }
+    },
+    {
+      "type": "heatmap",
+      "title": "Prediction Latency (Histogram)",
+      "description": "Distribution of prediction times.",
+      "targets": [
+        {
+          "expr": "sum(rate(sms_prediction_duration_seconds_bucket[$interval])) by (le)",
+          "format": "heatmap",
+          "legendFormat": "{{le}}"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 9 }
     },
     {
       "type": "timeseries",
-      "title": "Latency p95",
+      "title": "Average Latency",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{job=\"myapp\"}[5m])) by (le))",
-          "legendFormat": "p95"
+          "expr": "sum(rate(sms_prediction_duration_seconds_sum[$interval])) / sum(rate(sms_prediction_duration_seconds_count[$interval]))",
+          "legendFormat": "Avg Duration"
         }
       ],
-      "gridPos": {
-        "x": 0,
-        "y": 8,
-        "w": 24,
-        "h": 8
-      }
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 9 }
     }
   ],
-  "templating": {
-    "list": []
-  },
-  "time": {
-    "from": "now-6h",
-    "to": "now"
-  }
+  "time": { "from": "now-15m", "to": "now" }
 }
-

@@ -67,14 +67,18 @@ prometheus:
     interval: "5s"
     path: "/sms/metrics"
 
+kube-prometheus-stack:
+  grafana:
+    enabled: false
+
 grafana:
-  enabled: false #Disabled for now
+  enabled: true
   image:
     repository: grafana/grafana
     tag: "10.4.2"
     pullPolicy: IfNotPresent
   adminUser: "admin"
-  adminPassword: "CHANGE_ME"
+  adminPassword: "admin"
   service:
     type: ClusterIP
     port: 3000
