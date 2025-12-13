@@ -25,7 +25,9 @@ spec:
             - name: GF_SECURITY_ADMIN_PASSWORD
               value: {{ .Values.grafana.adminPassword | quote }}
             - name: GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH
-              value: /var/lib/grafana/dashboards/app-metrics-dashboard.json
+              value: /var/lib/grafana/dashboards/{{ .Values.grafana.dashboards.defaultHome }}
+            - name: GF_PATHS_PROVISIONING
+              value: /etc/grafana/provisioning
           ports:
             - name: http
               containerPort: {{ .Values.grafana.service.port }}
@@ -36,11 +38,9 @@ spec:
             - name: grafana-provisioning
               mountPath: /etc/grafana/provisioning/dashboards/dashboards.yaml
               subPath: dashboards.yaml
-
             - name: grafana-provisioning
               mountPath: /etc/grafana/provisioning/datasources/datasources.yaml
               subPath: datasources.yaml
-
           {{- with .Values.grafana.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
@@ -52,4 +52,4 @@ spec:
         - name: grafana-provisioning
           configMap:
             name: {{ include "myapp.grafanaProvisioningName" . }}
-  {{- end }}
+{{- end }}
