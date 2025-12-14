@@ -6,66 +6,75 @@
     "experimentation",
     "assignment-4"
   ],
+  "templating": {
+    "list": [
+      {
+        "name": "datasource",
+        "type": "datasource",
+        "pluginId": "prometheus",
+        "label": "Data Source",
+        "query": "prometheus",
+        "refresh": 1,
+        "current": {},
+        "hide": 0,
+        "includeAll": false,
+        "multi": false
+      },
+      {
+        "name": "interval",
+        "type": "interval",
+        "label": "Time Interval",
+        "query": "1m,5m,15m,30m,1h",
+        "current": { "selected": true, "text": "15m", "value": "15m" },
+        "hide": 0,
+        "auto": false
+      }
+    ]
+  },
   "panels": [
     {
       "type": "stat",
       "title": "Traffic Split Stable",
+      "datasource": "${datasource}",
       "targets": [
         {
           "expr": "avg(myapp_variant_traffic_split{variant=\"stable\"})",
           "legendFormat": "stable"
         }
       ],
-      "gridPos": {
-        "x": 0,
-        "y": 0,
-        "w": 12,
-        "h": 6
-      }
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 6 }
     },
     {
       "type": "stat",
       "title": "Traffic Split Preview",
+      "datasource": "${datasource}",
       "targets": [
         {
           "expr": "avg(myapp_variant_traffic_split{variant=\"preview\"})",
           "legendFormat": "preview"
         }
       ],
-      "gridPos": {
-        "x": 12,
-        "y": 0,
-        "w": 12,
-        "h": 6
-      }
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 6 }
     },
     {
       "type": "timeseries",
       "title": "Conversion Rate per Variant",
+      "datasource": "${datasource}",
       "targets": [
         {
-          "expr": "rate(myapp_conversion_total{variant=\"stable\"}[15m])",
+          "expr": "rate(myapp_conversion_total{variant=\"stable\"}[$interval])",
           "legendFormat": "stable"
         },
         {
-          "expr": "rate(myapp_conversion_total{variant=\"preview\"}[15m])",
+          "expr": "rate(myapp_conversion_total{variant=\"preview\"}[$interval])",
           "legendFormat": "preview"
         }
       ],
-      "gridPos": {
-        "x": 0,
-        "y": 6,
-        "w": 24,
-        "h": 8
-      }
+      "gridPos": { "x": 0, "y": 6, "w": 24, "h": 8 }
     }
   ],
-  "templating": {
-    "list": []
-  },
   "time": {
     "from": "now-24h",
     "to": "now"
   }
 }
-

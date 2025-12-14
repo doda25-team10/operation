@@ -36,7 +36,11 @@ spec:
             - name: grafana-dashboards
               mountPath: /var/lib/grafana/dashboards
             - name: grafana-provisioning
-              mountPath: /etc/grafana/provisioning
+              mountPath: /etc/grafana/provisioning/dashboards/dashboards.yaml
+              subPath: dashboards.yaml
+            - name: grafana-provisioning
+              mountPath: /etc/grafana/provisioning/datasources/datasources.yaml
+              subPath: datasources.yaml
           {{- with .Values.grafana.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
@@ -49,4 +53,3 @@ spec:
           configMap:
             name: {{ include "myapp.grafanaProvisioningName" . }}
 {{- end }}
-
