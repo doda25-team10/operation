@@ -12,14 +12,14 @@ app:
   image:
     repository: "ghcr.io/doda25-team10/app-service"
     tag: "latest"
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   service:
     type: ClusterIP
     port: 80
     targetPort: 8080
     annotations: {}
   ingress:
-    enabled: true
+    enabled: false # Temporarily disabled due to getting failed calling webhook error
     hosts:
       - name: "stable"
         enabled: true
@@ -42,7 +42,7 @@ model:
   image:
     repository: "ghcr.io/doda25-team10/model-service"
     tag: "latest"
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   service:
     type: ClusterIP
     port: 8081
@@ -52,24 +52,50 @@ model:
 
 prometheus:
   enabled: true
-  image:
-    repository: prom/prometheus
-    tag: v2.52.0
-    pullPolicy: IfNotPresent
-  scrapeInterval: "5"
-  service:
-    type: ClusterIP
-    port: 9090
-  resources: {}
   serviceMonitor:
     enabled: true
-    namespace: ""
-    interval: "5s"
+    interval: "15s"
     path: "/sms/metrics"
+  service:
+      type: ClusterIP
+      port: 9090
 
 kube-prometheus-stack:
+  enabled: true
+  
+  prometheus:
+    enabled: true
+
+    prometheusSpec:
+      scrapeInterval: 5s
+      evaluationInterval: 5s
+
+      ruleSelector: {}
+
+      serviceMonitorSelector:
+        matchLabels:
+          monitoring: "app"
+      
+      # How often to scrape metrics
+      scrapeInterval: 15s
+
+      resources: {}
+      env: {}
+
+    
+
+  alertmanager:
+    enabled: true
+    alertmanagerSpec:
+      # Using a custom config instead of the default one, because of merge issues with Helm
+      useExistingSecret: true
+      configSecret: alertmanager-myapp-custom-config
+  
   grafana:
     enabled: false
+
+alertmanager:
+  smtpPassword: ""  # Placeholder - must provide via --set
 
 grafana:
   enabled: true

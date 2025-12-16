@@ -6,6 +6,7 @@ metadata:
   labels:
     {{- include "myapp.componentLabels" (dict "root" . "component" "monitoring") | nindent 4 }}
     release: {{ .Release.Name }}
+    monitoring: "app"
 spec:
   selector:
     matchLabels:
@@ -14,9 +15,10 @@ spec:
   namespaceSelector:
     matchNames:
       - {{ .Release.Namespace }}
+  
 
   endpoints:
     - interval: {{ .Values.prometheus.serviceMonitor.interval }}
       port: http
       path: {{ .Values.prometheus.serviceMonitor.path }}
-  {{- end }}
+{{- end }}
