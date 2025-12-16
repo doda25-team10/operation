@@ -13,9 +13,13 @@ helm/myapp/
     alertmanager-config.yaml
     app-*.yaml (deployment/service/ingress/configmap/secret)
     grafana-*.yaml
+    model-*.yaml
     prometheusrule.yaml
     servicemonitor.yaml
 ```
+
+Keep in mind, the Grafana part of the helm charts is NOT yet implemented. If you start the implementation, you can delete/change/add any and all Grafana related
+files you deem necessary
 
 ## Prerequisites
 
@@ -34,7 +38,7 @@ The alertmanager requires an email to send the emails. This requires an app pass
 4. Generate the password which should be a 16-character password: XXXX XXXX XXXX XXXX
 5. In the [alertmanager config](./templates/alertmanager-config.yaml) change the emails according to your needs.
 
-## Setup
+## Install with
 
 ```
 helm install myapp ./helm/myapp/ \
@@ -45,7 +49,9 @@ helm install myapp ./helm/myapp/ \
 
 Running the command above (or using `helm upgrade --install`) is the single entrypoint for deploying the stack into any Kubernetes cluster (Minikube, kind, managed cloud, etc.). Choose the namespace you want to create by replacing `sms-stack` with \<any-namespace\>. It takes a few **minutes** for everything to load correctly.
 
-> **Note:** `myapp` above is the Helm release name. If you pick a different release name (e.g. `helm upgrade --install sms-stack ./operation/helm/myapp ...`), replace `myapp` everywhere accordingly. Many resource names are `<release>-<component>`, so use `kubectl get svc -n sms-stack` to see the exact service names before port-forwarding.
+Before being able to run this however, it might be necessary to run `helm dependency build ./helm/myapp` if you get an error.
+
+> **Note:** `myapp` above is the Helm release name. If you pick a different release name (e.g. `helm install sms-stack ./helm/myapp --namespace sms-stack --create-namespace`), replace `myapp` everywhere accordingly. Many resource names are `<release>-<component>`, so use `kubectl get svc -n sms-stack` to see the exact service names before port-forwarding.
 
 ## Testing out alertmanager
 Check if pods are running:
@@ -103,9 +109,8 @@ templates: []
 
 ---
 
-Access Prometheus: `# Port-forward to Prometheus
-kubectl port-forward -n sms-stack svc/myapp-kube-prometheus-stac-prometheus 9090:9090`
-Wait a few a bit, then open: http://localhost:9090/alerts
+Access Prometheus: `kubectl port-forward -n sms-stack svc/myapp-kube-prometheus-stac-prometheus 9090:9090`
+Wait a bit, then open: http://localhost:9090/alerts
 
 When you open the page you should see the top row with:
 ```
@@ -116,7 +121,7 @@ TooManyRequests
 The TooManyRequests should be currently `inactive`. The alert fires when the service receives >15 requests/minute for 2 minutes straight.
 
 Open a new terminal and port forward to the application:
-`kubectl port-forward -n sms-stack svc/app-service 8080:8080`
+`kubectl port-forward -n sms-stack svc/myapp-app-svc 8080:80`
 
 To trigger the alert we will be spamming requests/generate traffic. In another terminal execute:
 ```
@@ -143,19 +148,26 @@ It will also send a second email a few minutes later saying the alert has been `
 
 All knobs live in `values.yaml`. Key sections:
 
-- `global.domain` / `global.tlsEnabled`: control default hostnames and TLS blocks across the chart.
+- `global.domain`: control default hostnames
+- `global.storage.hostPath`: path on the node and mount path inside the pod (defaults to `/mnt/shared`).
 - `app.*`: image, replica count, env vars, ConfigMap data, SMTP credentials (stored via stringData), and the ingress/service definition. By default the ingress renders both a **stable** host (enabled) and a **preview** host (disabled) via `app.ingress.hosts`. Leave `app.secret.smtpPassword` empty (with `autogenerate: true`) to have Helm create a random password during install.
-- `storage.hostPath.*`: path on the node and mount path inside the pod (defaults to `/mnt/shared`).
+- `model.*`: Values similar to the app, without any ingress or secrets.
+- `prometheus`: Prometheus config, installed through kube-promeheus-stack
 - `kube-prometheus-stack`: collection which contains prometheus and the alertmanager.
 - `alertmanager`: placeholder for the required (secret) app password.
 - `grafana.*`: manages Grafana image, admin credentials, service type, and which dashboard file should act as the default home.
 - `experiments.preview.*`: future Assignment 4 knobs (currently disabled) that will control preview traffic weight, image overrides, or extra env vars once experimentation features are added.
+- `prometheus.*`: toggles the standalone Prometheus deployment/service, scrape interval and ServiceMonitor emission
+- `grafana.*`: manages Grafana image, admin credentials, service type, and which dashboard file should act as the default home. To be correctly implemented!
 
 Example production overlay:
 
 ```yaml
 global:
-  domain: "prod.example.com"
+  domain: "example.com"
+  storage:
+    enabled: true
+    hostPath: "/mnt/shared"
 app:
   image:
     tag: "2025.12.04"
@@ -169,13 +181,6 @@ app:
         enabled: true
         host: "canary.prod.example.com"
         tlsSecretName: "spam-preview-tls"
-experiments:
-  preview:
-    enabled: true
-    weight: 50
-storage:
-  hostPath:
-    pathOnHost: "/var/lib/myapp/shared"
 prometheus:
   serviceMonitor:
     namespace: observability
@@ -185,8 +190,9 @@ grafana:
 
 ## Troubleshooting tips
 
-- `kubectl -n sms-stack port-forward svc/<release>-myapp-app-svc 8080:80` for quick local validation.
+- `kubectl -n sms-stack port-forward svc/<release-name>-app-svc 8080:80` for quick local validation of the app
+- `kubectl -n sms-stack port-forward svc/<release-name>-kube-prometheus-stac-prometheus 9090:9090` for quick local validation of the app
     
-- `kubectl -n sms-stack logs deploy/<release>-myapp-prometheus` to inspect Prometheus scrape errors.
+- `kubectl -n sms-stack logs deploy/<release-name>-myapp-prometheus` to inspect Prometheus scrape errors.
 - If dashboards fail to load, verify the `grafana-dashboard-configmap` exists and the Grafana pod mounts `/var/lib/grafana/dashboards`.
 

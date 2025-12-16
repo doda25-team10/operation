@@ -2,18 +2,17 @@
 
 global:
   domain: "example.com"
-  tlsEnabled: true
-
-nameOverride: ""
-fullnameOverride: "sms-stack"
+  storage:
+    enabled: true
+    hostPath: "/mnt/shared"
 
 app:
-  name: "frontend"
+  name: "app-service"
   replicaCount: 2
   image:
     repository: "ghcr.io/doda25-team10/app-service"
     tag: "latest"
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   service:
     type: ClusterIP
     port: 80
@@ -33,36 +32,46 @@ app:
         path: "/"
         tlsSecretName: ""
     annotations: {}
-  env:
-    DB_URL: ""
-    SHARED_STORAGE_PATH: "/mnt/shared"
-    METRICS_ENABLED: "true"
-  probes:
-    liveness: null
-    readiness: null
-  config:
-    SOME_CONFIG_KEY: "default"
-  secret:
-    autogenerate: true
-    smtpUser: ""
-    smtpPassword: ""
-  resources: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
+  env: { }
+  resources: { }
 
-storage:
-  hostPath:
+model:
+  name: "model-service"
+  host: "sms-stack-model-service"
+  replicaCount: 1
+  image:
+    repository: "ghcr.io/doda25-team10/model-service"
+    tag: "latest"
+    pullPolicy: Always
+  service:
+    type: ClusterIP
+    port: 8081
+    targetPort: 8081
+  env: {}
+  resources: {}
+
+prometheus:
+  enabled: true
+  serviceMonitor:
     enabled: true
-    pathOnHost: "/mnt/shared"
-    mountPath: "/mnt/shared"
+    interval: "15s"
+    path: "/sms/metrics"
+  service:
+      type: ClusterIP
+      port: 9090
 
 kube-prometheus-stack:
   enabled: true
   
   prometheus:
+    enabled: true
+
     prometheusSpec:
+      scrapeInterval: 5s
+      evaluationInterval: 5s
+
       ruleSelector: {}
+
       serviceMonitorSelector:
         matchLabels:
           monitoring: "app"
@@ -70,16 +79,23 @@ kube-prometheus-stack:
       # How often to scrape metrics
       scrapeInterval: 15s
 
+      resources: {}
+      env: {}
+
+    
+
   alertmanager:
     enabled: true
     alertmanagerSpec:
       # Using a custom config instead of the default one, because of merge issues with Helm
       useExistingSecret: true
       configSecret: alertmanager-myapp-custom-config
+  
+  grafana:
+    enabled: false
 
 alertmanager:
   smtpPassword: ""  # Placeholder - must provide via --set
-  
 
 grafana:
   enabled: true
@@ -88,18 +104,10 @@ grafana:
     tag: "10.4.2"
     pullPolicy: IfNotPresent
   adminUser: "admin"
-  adminPassword: "CHANGE_ME"
+  adminPassword: "admin"
   service:
     type: ClusterIP
     port: 3000
   dashboards:
     defaultHome: "app-metrics-dashboard.json"
   resources: {}
-
-# --- Future Assignment (traffic mgmt / experimentation) placeholders ---
-experiments:
-  preview:
-    enabled: false
-    weight: 0            # used later for HTTPRoute / Istio split
-    imageOverride: ""    # if empty, reuse app.image.*
-    env: {}
