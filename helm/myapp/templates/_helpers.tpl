@@ -110,3 +110,17 @@ Frequently used names.
 {{- define "myapp.modelConfigMapName" -}}
 {{ include "myapp.componentName" (dict "root" . "component" "model-config") }}
 {{- end }}
+
+{{- define "myapp.istioGatewayName" -}}
+{{- $default := include "myapp.componentName" (dict "root" . "component" "istio-gateway") -}}
+{{- default $default .Values.istio.gateway.name -}}
+{{- end -}}
+
+{{- define "myapp.istioVirtualServiceName" -}}
+{{- $default := include "myapp.componentName" (dict "root" . "component" "istio-vs") -}}
+{{- default $default .Values.istio.virtualService.name -}}
+{{- end -}}
+
+{{- define "myapp.istioAppServiceHost" -}}
+{{- include "myapp.appServiceName" . -}}
+{{- end -}}

@@ -3,3 +3,4 @@
 venv
 model
 kubeconfig
+istio-1*

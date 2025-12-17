@@ -111,3 +111,28 @@ grafana:
   dashboards:
     defaultHome: "app-metrics-dashboard.json"
   resources: {}
+
+istio:
+  enabled: true
+  gateway:
+    create: true
+    name: ""
+    selectorLabels:
+      istio: ingressgateway
+    hosts:
+      - "app.local"
+    port:
+      number: 80
+      name: http
+      protocol: HTTP
+
+  virtualService:
+    create: true
+    name: ""
+    hosts: []
+    gateways: []
+    uriPrefix: "/"
+    routes:
+      - host: ""
+        port: 80
+        weight: 100
