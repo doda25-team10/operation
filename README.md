@@ -132,6 +132,10 @@ After provisioning the cluster, MetalLB (LoadBalancer), Nginx ingress controller
 ansible-playbook -u vagrant -i 192.168.56.100, ./provisioning/finalization.yml
 ```
 
+### Changing the .env file
+
+The ```.env``` can be changed according to your preferences. Within it, you can change the versions of each image that will be used, and port and model configuration. The current set-up will, of course, work out-of-the-box using the latest images for the app and model.
+
 ---
 
 ## Helm-based Kubernetes deployment
