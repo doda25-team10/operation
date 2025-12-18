@@ -122,16 +122,23 @@
       delay: 3
       until: token_check.rc == 0
 
-    # For https access, create self-signed certs and ingress
-    - name: Generate self-signed certificate for dashboard
-      shell: |
-        mkdir -p /etc/kubernetes/certs
-        openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-          -keyout /etc/kubernetes/certs/dashboard.key \
-          -out /etc/kubernetes/certs/dashboard.crt \
-          -subj "/CN=dashboard.local/O=dashboard.local"
-      args:
-        creates: /etc/kubernetes/certs/dashboard.crt
+    - name: Ensure certificate directory exists
+      file:
+        path: /etc/kubernetes/certs
+        state: directory
+        mode: '0755'
+
+    - name: Copy Dashboard SSL Certificate
+      copy:
+        src: files/certs/dashboard.crt
+        dest: /etc/kubernetes/certs/dashboard.crt
+        mode: '0644'
+
+    - name: Copy Dashboard SSL Key
+      copy:
+        src: files/certs/dashboard.key
+        dest: /etc/kubernetes/certs/dashboard.key
+        mode: '0600'
 
     - name: Create TLS secret for dashboard
       shell: |
