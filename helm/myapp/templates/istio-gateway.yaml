@@ -1,0 +1,22 @@
+{{- if and .Values.istio.enabled .Values.istio.gateway.create }}
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: {{ include "myapp.istioGatewayName" . }}
+  labels:
+    {{- include "myapp.componentLabels" (dict "root" . "component" "istio") | nindent 4 }}
+spec:
+  selector:
+{{- range $k, $v := .Values.istio.gateway.selectorLabels }}
+    {{ $k }}: {{ $v | quote }}
+{{- end }}
+  servers:
+    - port:
+        number: {{ .Values.istio.gateway.port.number }}
+        name: {{ .Values.istio.gateway.port.name }}
+        protocol: {{ .Values.istio.gateway.port.protocol }}
+      hosts:
+{{- range .Values.istio.gateway.hosts }}
+        - {{ . | quote }}
+{{- end }}
+{{- end }}
