@@ -46,3 +46,15 @@
 | **Denis** | Worked on **A4** by proposing an extension to the project | [https://github.com/doda25-team10/operation/pull/31](https://github.com/doda25-team10/operation/pull/31) | [https://github.com/doda25-team10/operation/pull/29](https://github.com/doda25-team10/operation/pull/29) |
 | **Paul** |  Worked on **A3** by implementing the Grafana dashboard | [https://github.com/doda25-team10/operation/pull/30](https://github.com/doda25-team10/operation/pull/30) | [https://github.com/doda25-team10/operation/pull/27](https://github.com/doda25-team10/operation/pull/27) |
 | **Aadesh** | Worked on **A3** by finalising the migration to Helm | [https://github.com/doda25-team10/operation/pull/28](https://github.com/doda25-team10/operation/pull/28), [https://github.com/doda25-team10/app/pull/9](https://github.com/doda25-team10/app/pull/9) | [https://github.com/doda25-team10/operation/pull/29](https://github.com/doda25-team10/operation/pull/29) |
+
+
+## Week Q2.6 (Dec 15+)
+
+| Team Member | Contribution Description | Merged PRs (Created) | Approved PRs (Reviewed) |
+| :--- | :--- | :--- | :--- |
+| **Andrea** | Worked on **A4** by writing documentation of our application. | https://github.com/doda25-team10/operation/pull/34 | https://github.com/doda25-team10/operation/pull/30, https://github.com/doda25-team10/operation/pull/32, https://github.com/doda25-team10/operation/pull/33 |
+| **Yi** | Worked on **A4** by implementing/documenting Conitnuous experimentation| https://github.com/doda25-team10/app/pull/10 | https://github.com/doda25-team10/operation/pull/33 |
+| **Maciej** | Worked on **A3** by implementing the Helm chart installation| - | - |
+| **Denis** | Worked on **A4** by proposing an extension to the project | https://github.com/doda25-team10/operation/pull/35 | https://github.com/doda25-team10/operation/pull/33 |
+| **Paul** |  Worked on **A3** by implementing the Grafana dashboard | https://github.com/doda25-team10/operation/pull/33| - |
+| **Aadesh** | Worked on **A3** by finalising the migration to Helm | https://github.com/doda25-team10/operation/pull/36 | https://github.com/doda25-team10/operation/pull/30 |
