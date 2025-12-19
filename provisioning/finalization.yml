@@ -50,6 +50,17 @@
           --create-namespace \
           --set controller.service.loadBalancerIP=192.168.56.90
 
+    - name: Wait for Nginx Ingress Controller to be ready
+      shell: >
+        kubectl wait --namespace ingress-nginx
+        --for=condition=ready pod
+        --selector=app.kubernetes.io/component=controller
+        --timeout=120s
+      register: ingress_wait
+      retries: 5
+      delay: 10
+      until: ingress_wait.rc == 0
+
     # Step 22: Install Kubernetes Dashboard
     - name: Add Kubernetes Dashboard Helm repository
       shell: helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
