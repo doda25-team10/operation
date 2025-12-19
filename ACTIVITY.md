@@ -55,6 +55,6 @@
 | **Andrea** | Worked on **A4** by writing documentation of our application. | https://github.com/doda25-team10/operation/pull/34 | https://github.com/doda25-team10/operation/pull/30, https://github.com/doda25-team10/operation/pull/32, https://github.com/doda25-team10/operation/pull/33 |
 | **Yi** | Worked on **A4** by implementing/documenting Conitnuous experimentation| https://github.com/doda25-team10/app/pull/10 | https://github.com/doda25-team10/operation/pull/33 |
 | **Maciej** | Worked on **A3** by implementing the Helm chart installation| - | - |
-| **Denis** | Worked on **A4** by proposing an extension to the project | https://github.com/doda25-team10/operation/pull/35 | https://github.com/doda25-team10/operation/pull/33 |
+| **Denis** | Worked on **A4** by proposing an extension to the project. Fixed git taggin for **A1** and SSL key usage for **A2**. | https://github.com/doda25-team10/operation/pull/35, https://github.com/doda25-team10/app/pull/11, https://github.com/doda25-team10/model-service/pull/9 | https://github.com/doda25-team10/operation/pull/33 |
 | **Paul** |  Worked on **A3** by implementing the Grafana dashboard | https://github.com/doda25-team10/operation/pull/33| - |
 | **Aadesh** | Worked on **A3** by finalising the migration to Helm | https://github.com/doda25-team10/operation/pull/36 | https://github.com/doda25-team10/operation/pull/30 |
