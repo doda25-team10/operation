@@ -7,11 +7,12 @@ global:
     hostPath: "/mnt/shared"
 
 app:
-  name: "app-service"
+  name: "app"
   replicaCount: 2
   image:
-    repository: "ghcr.io/doda25-team10/app-service"
-    tag: "latest"
+    repository: "ghcr.io/doda25-team10/app"
+    tagStable: "0.0.7"
+    tagExperiment: "0.0.6"
     pullPolicy: Always
   service:
     type: ClusterIP
@@ -41,7 +42,8 @@ model:
   replicaCount: 1
   image:
     repository: "ghcr.io/doda25-team10/model-service"
-    tag: "latest"
+    tagStable: "0.1.5"
+    tagExperiment: "0.1.4"
     pullPolicy: Always
   service:
     type: ClusterIP
@@ -116,11 +118,11 @@ istio:
   enabled: true
   gateway:
     create: true
-    name: ""
+    name: "gateway"
     selectorLabels:
       istio: ingressgateway
     hosts:
-      - "app.local"
+      - "*"
     port:
       number: 80
       name: http
@@ -130,9 +132,10 @@ istio:
     create: true
     name: ""
     hosts: []
-    gateways: []
     uriPrefix: "/"
-    routes:
-      - host: ""
-        port: 80
-        weight: 100
+    weightStable: 90
+    weightExperiment: 10
+
+  canary:
+    header: "canary"
+    headerValue: "enabled"

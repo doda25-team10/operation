@@ -16,24 +16,24 @@ spec:
 {{- end }}
 
   gateways:
-{{- if .Values.istio.virtualService.gateways }}
-{{- range .Values.istio.virtualService.gateways }}
-    - {{ . | quote }}
-{{- end }}
-{{- else }}
     - {{ include "myapp.istioGatewayName" . }}
-{{- end }}
 
   http:
     - match:
-        - uri:
-            prefix: {{ .Values.istio.virtualService.uriPrefix | quote }}
+        - headers:
+            {{ .Values.istio.canary.header | default "canary" }}:
+              exact: {{ .Values.istio.canary.headerValue | default "enabled" | quote }}
       route:
-{{- range .Values.istio.virtualService.routes }}
         - destination:
-            host: {{ default (include "myapp.istioAppServiceHost" $) .host | quote }}
-            port:
-              number: {{ default $.Values.app.service.port .port }}
-          weight: {{ .weight }}
-{{- end }}
+            host: {{ include "myapp.appServiceName" . }}
+            subset: v2
+    - route:
+        - destination:
+            host: {{ include "myapp.appServiceName" . }}
+            subset: v1
+          weight: {{ .Values.istio.virtualService.weightStable | default 90 }}
+        - destination:
+            host: {{ include "myapp.appServiceName" . }}
+            subset: v2
+          weight: {{ .Values.istio.virtualService.weightExperiment | default 10 }}
 {{- end }}

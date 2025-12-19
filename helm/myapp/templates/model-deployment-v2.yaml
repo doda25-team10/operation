@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "myapp.modelDeploymentName" . }}-v2
+  labels:
+    {{- include "myapp.componentLabels" (dict "root" . "component" "model") | nindent 4 }}
+    version: v2
+spec:
+  replicas: {{ .Values.model.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "myapp.componentSelectorLabels" (dict "root" . "component" "model") | nindent 6 }}
+      version: v2
+  template:
+    metadata:
+      labels:
+        {{- include "myapp.componentSelectorLabels" (dict "root" . "component" "model") | nindent 8 }}
+        version: v2
+    spec:
+      containers:
+        - name: {{ include "myapp.name" . }}
+          image: "{{ .Values.model.image.repository }}:{{ .Values.model.image.tagExperiment }}"
+          imagePullPolicy: {{ .Values.model.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.model.service.targetPort }}
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: {{ include "myapp.modelConfigMapName" . }}
+          volumeMounts:
+            - name: shared-storage
+              mountPath: {{ .Values.global.storage.hostPath }}
+
+      volumes:
+        - name: shared-storage
+          hostPath:
+            path: {{ .Values.global.storage.hostPath }}
+            type: DirectoryOrCreate
