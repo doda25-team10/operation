@@ -139,3 +139,5 @@ istio:
   canary:
     header: "canary"
     headerValue: "enabled"
+    stableCookie: "user_group=v1; Path=/; Max-Age=86400"
+    experimentalCookie: "user_group=v2; Path=/; Max-Age=86400"

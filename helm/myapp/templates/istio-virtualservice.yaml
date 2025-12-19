@@ -7,13 +7,13 @@ metadata:
     {{- include "myapp.componentLabels" (dict "root" . "component" "istio") | nindent 4 }}
 spec:
   hosts:
-{{- $vsHosts := .Values.istio.virtualService.hosts }}
-{{- if not $vsHosts }}
-{{- $vsHosts = .Values.istio.gateway.hosts }}
-{{- end }}
-{{- range $vsHosts }}
-    - {{ . | quote }}
-{{- end }}
+  {{- $vsHosts := .Values.istio.virtualService.hosts }}
+  {{- if not $vsHosts }}
+  {{- $vsHosts = .Values.istio.gateway.hosts }}
+  {{- end }}
+  {{- range $vsHosts }}
+  - {{ . | quote }}
+  {{- end }}
 
   gateways:
     - {{ include "myapp.istioGatewayName" . }}
@@ -27,13 +27,37 @@ spec:
         - destination:
             host: {{ include "myapp.appServiceName" . }}
             subset: v2
+    - match:
+        - headers:
+            cookie:
+              regex: "^(.*?;)?(user_group=v2)(;.*)?$"
+      route:
+        - destination:
+            host: {{ include "myapp.appServiceName" . }}
+            subset: v2
+    - match:
+        - headers:
+            cookie:
+              regex: "^(.*?;)?(user_group=v1)(;.*)?$"
+      route:
+        - destination:
+            host: {{ include "myapp.appServiceName" . }}
+            subset: v1
     - route:
         - destination:
             host: {{ include "myapp.appServiceName" . }}
             subset: v1
           weight: {{ .Values.istio.virtualService.weightStable | default 90 }}
+          headers:
+            response:
+              set:
+                Set-Cookie: {{ .Values.istio.canary.stableCookie }}
         - destination:
             host: {{ include "myapp.appServiceName" . }}
             subset: v2
           weight: {{ .Values.istio.virtualService.weightExperiment | default 10 }}
-{{- end }}
+          headers:
+            response:
+              set:
+                Set-Cookie: {{ .Values.istio.canary.experimentalCookie }}
+  {{- end }}
