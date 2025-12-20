@@ -1,0 +1,24 @@
+{{- if .Values.istio.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ include "myapp.fullname" . }}-model-vs
+  labels:
+    {{- include "myapp.componentLabels" (dict "root" . "component" "model") | nindent 4 }}
+spec:
+  hosts:
+    - {{ include "myapp.modelServiceName" . }}
+  http:
+    - match:
+        - sourceLabels:
+            app.kubernetes.io/name: {{ include "myapp.name" . }}
+            version: v2
+      route:
+        - destination:
+            host: {{ include "myapp.modelServiceName" . }}
+            subset: v2
+    - route:
+        - destination:
+            host: {{ include "myapp.modelServiceName" . }}
+            subset: v1
+{{- end }}

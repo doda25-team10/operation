@@ -7,33 +7,57 @@ metadata:
     {{- include "myapp.componentLabels" (dict "root" . "component" "istio") | nindent 4 }}
 spec:
   hosts:
-{{- $vsHosts := .Values.istio.virtualService.hosts }}
-{{- if not $vsHosts }}
-{{- $vsHosts = .Values.istio.gateway.hosts }}
-{{- end }}
-{{- range $vsHosts }}
-    - {{ . | quote }}
-{{- end }}
+  {{- $vsHosts := .Values.istio.virtualService.hosts }}
+  {{- if not $vsHosts }}
+  {{- $vsHosts = .Values.istio.gateway.hosts }}
+  {{- end }}
+  {{- range $vsHosts }}
+  - {{ . | quote }}
+  {{- end }}
 
   gateways:
-{{- if .Values.istio.virtualService.gateways }}
-{{- range .Values.istio.virtualService.gateways }}
-    - {{ . | quote }}
-{{- end }}
-{{- else }}
     - {{ include "myapp.istioGatewayName" . }}
-{{- end }}
 
   http:
     - match:
-        - uri:
-            prefix: {{ .Values.istio.virtualService.uriPrefix | quote }}
+        - headers:
+            {{ .Values.istio.canary.header | default "canary" }}:
+              exact: {{ .Values.istio.canary.headerValue | default "enabled" | quote }}
       route:
-{{- range .Values.istio.virtualService.routes }}
         - destination:
-            host: {{ default (include "myapp.istioAppServiceHost" $) .host | quote }}
-            port:
-              number: {{ default $.Values.app.service.port .port }}
-          weight: {{ .weight }}
-{{- end }}
-{{- end }}
+            host: {{ include "myapp.appServiceName" . }}
+            subset: v2
+    - match:
+        - headers:
+            cookie:
+              regex: "^(.*?;)?(user_group=v2)(;.*)?$"
+      route:
+        - destination:
+            host: {{ include "myapp.appServiceName" . }}
+            subset: v2
+    - match:
+        - headers:
+            cookie:
+              regex: "^(.*?;)?(user_group=v1)(;.*)?$"
+      route:
+        - destination:
+            host: {{ include "myapp.appServiceName" . }}
+            subset: v1
+    - route:
+        - destination:
+            host: {{ include "myapp.appServiceName" . }}
+            subset: v1
+          weight: {{ .Values.istio.virtualService.weightStable | default 90 }}
+          headers:
+            response:
+              set:
+                Set-Cookie: {{ .Values.istio.canary.stableCookie }}
+        - destination:
+            host: {{ include "myapp.appServiceName" . }}
+            subset: v2
+          weight: {{ .Values.istio.virtualService.weightExperiment | default 10 }}
+          headers:
+            response:
+              set:
+                Set-Cookie: {{ .Values.istio.canary.experimentalCookie }}
+  {{- end }}

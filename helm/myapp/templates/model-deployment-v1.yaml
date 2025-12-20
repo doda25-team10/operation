@@ -1,22 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "myapp.modelDeploymentName" . }}
+  name: {{ include "myapp.modelDeploymentName" . }}-v1
   labels:
     {{- include "myapp.componentLabels" (dict "root" . "component" "model") | nindent 4 }}
+    version: v1
 spec:
   replicas: {{ .Values.model.replicaCount }}
   selector:
     matchLabels:
       {{- include "myapp.componentSelectorLabels" (dict "root" . "component" "model") | nindent 6 }}
+      version: v1
   template:
     metadata:
       labels:
         {{- include "myapp.componentSelectorLabels" (dict "root" . "component" "model") | nindent 8 }}
+        version: v1
     spec:
       containers:
         - name: {{ include "myapp.name" . }}
-          image: "{{ .Values.model.image.repository }}:{{ .Values.model.image.tag }}"
+          image: "{{ .Values.model.image.repository }}:{{ .Values.model.image.tagStable }}"
           imagePullPolicy: {{ .Values.model.image.pullPolicy }}
           ports:
             - name: http
