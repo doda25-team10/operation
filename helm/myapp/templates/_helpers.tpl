@@ -112,9 +112,8 @@ Frequently used names.
 {{- end }}
 
 {{- define "myapp.istioGatewayName" -}}
-{{- $default := include "myapp.componentName" (dict "root" . "component" "istio-gateway") -}}
-{{- default $default .Values.istio.gateway.name -}}
-{{- end -}}
+{{- default "ingress-gateway" .Values.istio.gateway.name }}
+{{- end }}
 
 {{- define "myapp.istioVirtualServiceName" -}}
 {{- $default := include "myapp.componentName" (dict "root" . "component" "istio-vs") -}}
