@@ -129,7 +129,7 @@ kubectl get pods -A
 After provisioning the cluster, MetalLB (LoadBalancer), Nginx ingress controller, and the Kuberenetes dashboard can be installed via the following command:
 
 ```
-ansible-playbook -u vagrant -i 192.168.56.100, ./provisioning/finalization.yml
+ansible-playbook -u vagrant -i 192.168.56.100, ./provisioning/finalization.yml --private-key {path-to-identityfile}
 ```
 
 ### Changing the .env file
