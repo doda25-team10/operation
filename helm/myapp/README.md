@@ -144,6 +144,41 @@ It will also send a second email a few minutes later saying the alert has been `
 > **Note:** make sure to check your spam/junk mail.
 
 
+## Testing out Traffic Management
+In order to test out the traffic management, please follow the following steps:
+1. Install Istio and run `istioctl install` after having started a minikube cluster 
+2. Run the command `kubectl label ns default istio-injection=enabled` to enable Istio
+3. Install the Helm Chart (`helm install myapp ./helm/myapp/ -n sms-stack --create-namespace`)
+4. Run `minikube tunnel`
+5. Find out the external IP of your ingress gateway by running `kubectl get service -n istio-system`
+You should get something similar to the following, but the external IP can differ. There will likely also be
+other rows returned but these are not relevant for this.
+```
+NAME                          TYPE           CLUSTER-IP       EXTERNAL-IP    PORT(S)                                          AGE
+istio-ingressgateway          LoadBalancer   10.98.37.197     10.98.37.197   15021:30870/TCP,80:30522/TCP,443:32060/TCP       3d19h
+```
+6.  Access the external IP in the browser. With a 90% chance, you will see the stable version of the app/model. This version
+should work exactly as expected and should not contain any abnormal behaviour. With a 10% chance, you will see the experimental version.
+This version has a different message on the base URL, namely 'Hello World from outer space!'. Furthermore, when you access {URL}/sms, any message you will classify should *always* return spam. Once you access the app and get specific version, you are stuck with it
+for a certain amount of time. You can see which version you have in your cookies, these are named v1 and v2, and you can delete these 
+and refresh your page as often as you want in order to be convinced the 90/10 split is correctly implemented.
+7. We can do the same using curl requests, but this works a little differently. Classifying a message using
+`curl -X POST http://{EXTERNAL_IP}/sms/   -H "Content-Type: application/json"  -d '{"sms": "hi"}'` should return the correct
+output 90% of the time (`{"classifier":null,"result":"ham","sms":"hi","guess":null}` in the case of our message), 
+and spam 10% of the time (`{"classifier":null,"result":"spam","sms":"hi","guess":null}`). When we add the Canary "bypass" header, 
+`curl -X POST http://{EXTERNAL_IP}/sms/   -H "Content-Type: application/json" -H "canary: enabled"  -d '{"sms": "hi"}'`, you should
+*always* get `{"classifier":null,"result":"spam","sms":"hi","guess":null}` regardless of the message.
+8. For the home page: `curl -X GET http://{EXTERNAL_IP}/` should return `Hello World!  lib-version=0.1.0` 90% of the time and
+`Hello World from outer space!  lib-version=0.1.0` 10% of the time. `curl -X GET http://{EXTERNAL_IP}/ -H "canary: enabled"`
+should *always* return `Hello World from outer space!  lib-version=0.1.0`
+
+
+General information:
+The default Ingress Gateway selector is set to `ingressgateway`. If deploying to a cluster where the Istio Ingress Gateway 
+has a different label, override the `istio.selectorLabels.istio` value in `values.yaml`.
+
+TODO: Once an actual experimental version of the model/app has been implemented, their description should be changed here.
+
 ---
 
 All knobs live in `values.yaml`. Key sections:
