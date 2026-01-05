@@ -20,7 +20,7 @@ app:
     targetPort: 8080
     annotations: {}
   ingress:
-    enabled: false # Temporarily disabled due to getting failed calling webhook error
+    enabled: true
     hosts:
       - name: "stable"
         enabled: true
