@@ -1,0 +1,89 @@
+{{- if and .Values.istio.enabled .Values.istio.rateLimit.enabled }}
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: {{ include "myapp.componentName" (dict "root" . "component" "istio-rl") }}
+  namespace: {{ .Values.istio.gateway.namespace | default "istio-system" }}
+  labels:
+    {{- include "myapp.componentLabels" (dict "root" . "component" "istio") | nindent 4 }}
+spec:
+  workloadSelector:
+    labels:
+{{- range $k, $v := .Values.istio.gateway.selectorLabels }}
+      {{ $k }}: {{ $v | quote }}
+{{- end }}
+  configPatches:
+    - applyTo: HTTP_FILTER
+      match:
+        context: GATEWAY
+        listener:
+          portNumber: 8080
+          filterChain:
+            filter:
+              name: "envoy.filters.network.http_connection_manager"
+              subFilter:
+                name: "envoy.filters.http.router"
+      patch:
+        operation: INSERT_BEFORE
+        value:
+          name: envoy.filters.http.local_ratelimit
+          typed_config:
+            "@type": type.googleapis.com/udpa.type.v1.TypedStruct
+            type_url: type.googleapis.com/envoy.extensions.filters.http.local_ratelimit.v3.LocalRateLimit
+            value:
+              stat_prefix: http_local_rate_limiter
+              token_bucket:
+                max_tokens: {{ add (.Values.istio.rateLimit.requestsPerMinute | default 10) (.Values.istio.rateLimit.burst | default 0) }}
+                tokens_per_fill: {{ .Values.istio.rateLimit.requestsPerMinute | default 10 }}
+                fill_interval: 60s
+              filter_enabled:
+                runtime_key: local_rate_limit_enabled
+                default_value:
+                  numerator: 100
+                  denominator: HUNDRED
+              filter_enforced:
+                runtime_key: local_rate_limit_enforced
+                default_value:
+                  numerator: 100
+                  denominator: HUNDRED
+              local_rate_limit_per_downstream_connection: false
+    - applyTo: HTTP_ROUTE
+      match:
+        context: GATEWAY
+        routeConfiguration:
+          name: "http.8080"
+          vhost:
+            name: "*:80"
+      patch:
+        operation: MERGE
+        value:
+          typed_per_filter_config:
+            envoy.filters.http.local_ratelimit:
+              "@type": type.googleapis.com/udpa.type.v1.TypedStruct
+              type_url: type.googleapis.com/envoy.extensions.filters.http.local_ratelimit.v3.LocalRateLimit
+              value:
+                stat_prefix: http_local_rate_limiter
+                token_bucket:
+                  max_tokens: {{ add (.Values.istio.rateLimit.requestsPerMinute | default 10) (.Values.istio.rateLimit.burst | default 0) }}
+                  tokens_per_fill: {{ .Values.istio.rateLimit.requestsPerMinute | default 10 }}
+                  fill_interval: 60s
+                filter_enabled:
+                  runtime_key: local_rate_limit_enabled
+                  default_value:
+                    numerator: 100
+                    denominator: HUNDRED
+                filter_enforced:
+                  runtime_key: local_rate_limit_enforced
+                  default_value:
+                    numerator: 100
+                    denominator: HUNDRED
+                status: {{ .Values.istio.rateLimit.responseStatus | default 429 }}
+                response_body:
+                  inline_string: {{ .Values.istio.rateLimit.responseBody | default "rate limit exceeded" | quote }}
+                response_headers_to_add:
+                  - append: false
+                    header:
+                      key: x-local-rate-limit
+                      value: "true"
+{{- end }}
+
