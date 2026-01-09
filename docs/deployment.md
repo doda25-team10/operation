@@ -12,12 +12,12 @@ In the latter stages of the assignments, the deployment focuses on observability
 
 The application is exposed through an Istio Ingress Gateway. Below are the entry points for the system:
 
-| Service                             | URL / Access Method                   | Description                                                                                                                                              |
-| :---------------------------------- | :------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Web Application (Stable)**  | `https://myapp.example.com`         | The main user interface for the SMS Checker.                                                                                                             |
-| **Web Application (Preview)** | `https://preview.myapp.example.com` | Direct access to the experimental version of the SMS Checker.                                                                                            |
-| **Grafana Dashboard**         | `https://localhost:3000`            | Visualisation of app metrics and experiment data. |
-| **Prometheus**                | `https://localhost:9090`            | Metric collection and querying.                                                                                                                          |
+| Service                             | URL / Access Method                   | Description                                                   |
+| :---------------------------------- | :------------------------------------ | :------------------------------------------------------------ |
+| **Web Application (Stable)**  | `https://myapp.example.com`         | The main user interface for the SMS Checker.                  |
+| **Web Application (Preview)** | `https://preview.myapp.example.com` | Direct access to the experimental version of the SMS Checker. |
+| **Grafana Dashboard**         | `https://localhost:3000`            | Visualisation of app metrics and experiment data.             |
+| **Prometheus**                | `https://localhost:9090`            | Metric collection and querying.                               |
 
 > **Note:** Accessing `myapp.example.com` requires these entries to be present in the `/etc/hosts` file on your local machine, mapping them to the LoadBalancer IP of the cluster (e.g., `192.168.56.100`). For local testing, the main app service can simply be accessed at `https://localhost:8080`.
 
@@ -32,13 +32,13 @@ The system is composed of two primary microservices, communicating internally:
 1. **App Service (`myapp-app-svc`):**
 
    * **Function:** Serves the frontend and acts as the API gateway.
-   * **Replicas:** 2 replicas for versioning, randomly determined by an Istio VirtualService with a default 90-10% split.
+   * **Replicas:** 2 replicas per version for high availability.
    * **Connectivity:** Communicates with the Model Service via its internal Kubernetes DNS name (`myapp-model-service`) on port 8081.
    * **Storage:** Mounts the shared volume (`/mnt/storage`) for shared data or configuration.
 2. **Model Service (`myapp-model-service`):**
 
    * **Function:** Houses the ML model logic.
-   * **Replicas:** 2 replicas for versioning.
+   * **Replicas:** 1 replicas per version.
    * **Exposure:** Accessed internally via a ClusterIP Service on target port 8081.
 
 ### **Observability Stack**
@@ -69,7 +69,7 @@ To monitor our application internally, we implement a monitoring stack with Prom
 
 ![Figure 2. Typical data flow](images/monitoring_stack.jpg "Figure 2. Typical data flow")
 
-Lastly, the figure below illustrates the physical deployment of our application, showing the Vagrant VMs that host the Kubernetes cluster, including the control plane and worker nodes, and how the pods and services are distributed across them. Since all VMs share the same private subnet, they can easily communicate between each other.
+Lastly, the figure below illustrates the physical deployment of our application, showing the Vagrant VMs that host the Kubernetes cluster, including the control plane and worker nodes, and how the pods and services may be distributed across them. Note that the distribution of services between the two workers may change, and Grafana, Prometheus, MetalLB, Istio, and Nginx pods have been omitted for brevity. Since all VMs share the same private subnet, they can easily communicate between each other.
 
 ![Figure 3. Physical structure of the VMs](images/vm_structure.jpg "Figure 3. Physical structure of the VMs")
 
