@@ -68,4 +68,4 @@
 | **Maciej** | Worked on **A4** by implementing rate limiting. Excellent part still missing | https://github.com/doda25-team10/operation/pull/37 | - |
 | **Denis** | Worked on presentation slides | - | - |
 | **Paul** |  Worked on presentation slides | - | - |
-| **Aadesh** | Worked on presentation slides | - | - |
+| **Aadesh** | Updated traffic management for **A4** and worked on presentation slides | https://github.com/doda25-team10/operation/pull/36 | https://github.com/doda25-team10/operation/pull/34 |
