@@ -2,9 +2,7 @@
 
 ## 1. High-Level Overview
 
-In this document, we outline the deployment structure of the SMS Checker application (`sms-stack`). The system is designed as a cloud-native application running on Kubernetes, utilising **Istio** for traffic management and **Helm** for centralised configuration of our two services: the **App Service** (frontend/API) and the **Model Service** (ML backend).
-
-Generally, the architecture is split into two distinct services: , which facilitates independent scaling and deployment. Configuration is centralised using a single Helm chart.
+In this document, we outline the deployment structure of the SMS Checker application (`sms-stack`). The system is designed as a cloud-native application running on Kubernetes, utilising **Istio** for traffic management and **Helm** for centralised configuration of our two services: the **App Service** (frontend/API) and the **Model Service** (ML backend). Configuration is centralised using a single Helm chart.
 
 In the latter stages of the assignments, the deployment focuses on observability and experimentation, featuring a monitoring stack and a canary release strategy managed via Istio VirtualServices.
 
