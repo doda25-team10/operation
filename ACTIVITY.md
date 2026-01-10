@@ -3,7 +3,7 @@
 ## Week Q2.1 (Nov 10+)
 ### No Work
 
-## Week Q2.2 (Nov 17+)
+## Week Q2.2 (Nov 15+)
 
 | Team Member | Contribution Description | Merged PRs (Created) | Approved PRs (Reviewed) |
 | :--- | :--- | :--- | :--- |
@@ -14,7 +14,7 @@
 | **Paul** | I have worked on A1, implementing the version-aware library, its automated release workflow and the advanced versioning strategy for it, covering F1, F2 and F11. | https://github.com/doda25-team10/lib-version/pull/6 | https://github.com/doda25-team10/operation/pull/6 |
 | **Aadesh** | I have worked on the containerisation, versioning and packaging of the app-service, i.e. F3, F4, F5, F6, F8.| https://github.com/doda25-team10/app-service/pull/2, https://github.com/doda25-team10/app-service/pull/3, https://github.com/doda25-team10/app-service/pull/4 | https://github.com/doda25-team10/model-service/pull/4 |
 
-## Week Q2.3 (Nov 24+)
+## Week Q2.3 (Nov 22+)
 
 | Team Member | Contribution Description | Merged PRs (Created) | Approved PRs (Reviewed) |
 | :--- | :--- | :--- | :--- |
@@ -26,7 +26,7 @@
 | **Aadesh** | Worked on **A2** by implementing step 7| [https://github.com/doda25-team10/app-service/pull/18](https://github.com/doda25-team10/operation/pull/18) | [https://github.com/doda25-team10/operation/pull/16](https://github.com/doda25-team10/operation/pull/16) |
 
 
-## Week Q2.4 (Dec 1+)
+## Week Q2.4 (Nov 29+)
 
 | Team Member | Contribution Description | Merged PRs (Created) | Approved PRs (Reviewed) |
 | :--- | :--- | :--- | :--- |
@@ -36,7 +36,7 @@
 | **Denis** | Worked on A2 by implementing steps 13, 14, 16 and 17. Worked on A3 and implemented metrics for "Enable Monitoring" part. | https://github.com/doda25-team10/operation/pull/20, https://github.com/doda25-team10/operation/pull/22, https://github.com/doda25-team10/app-service/pull/8 | https://github.com/doda25-team10/operation/pull/21 |
 | **Paul** | Worked on A2 steps 20 and 21 | https://github.com/doda25-team10/operation/pull/23 | https://github.com/doda25-team10/operation/pull/22 |
 
-## Week Q2.5 (Dec 8+)
+## Week Q2.5 (Dec 6+)
 
 | Team Member | Contribution Description | Merged PRs (Created) | Approved PRs (Reviewed) |
 | :--- | :--- | :--- | :--- |
@@ -48,13 +48,24 @@
 | **Aadesh** | Worked on **A3** by finalising the migration to Helm | [https://github.com/doda25-team10/operation/pull/28](https://github.com/doda25-team10/operation/pull/28), [https://github.com/doda25-team10/app/pull/9](https://github.com/doda25-team10/app/pull/9) | [https://github.com/doda25-team10/operation/pull/29](https://github.com/doda25-team10/operation/pull/29) |
 
 
-## Week Q2.6 (Dec 15+)
+## Week Q2.6 (Dec 13+)
 
 | Team Member | Contribution Description | Merged PRs (Created) | Approved PRs (Reviewed) |
 | :--- | :--- | :--- | :--- |
-| **Andrea** | Worked on **A4** by writing documentation of our application. | https://github.com/doda25-team10/operation/pull/34 | https://github.com/doda25-team10/operation/pull/30, https://github.com/doda25-team10/operation/pull/32, https://github.com/doda25-team10/operation/pull/33 |
+| **Andrea** | Worked on generally checking over our application, ensuring everything meets Excellent requirements and that READMEs are up to date. | https://github.com/doda25-team10/operation/pull/34 | https://github.com/doda25-team10/operation/pull/30, https://github.com/doda25-team10/operation/pull/32, https://github.com/doda25-team10/operation/pull/33, https://github.com/doda25-team10/operation/pull/31, https://github.com/doda25-team10/operation/pull/36, https://github.com/doda25-team10/model-service/pull/9, https://github.com/doda25-team10/app/pull/11 |
 | **Yi** | Worked on **A4** by implementing/documenting Conitnuous experimentation| https://github.com/doda25-team10/app/pull/10 | https://github.com/doda25-team10/operation/pull/33 |
-| **Maciej** | Worked on **A3** by implementing the Helm chart installation| - | - |
-| **Denis** | Worked on **A4** by proposing an extension to the project. Fixed git taggin for **A1** and SSL key usage for **A2**. | https://github.com/doda25-team10/operation/pull/35, https://github.com/doda25-team10/app/pull/11, https://github.com/doda25-team10/model-service/pull/9 | https://github.com/doda25-team10/operation/pull/33 |
-| **Paul** |  Worked on **A3** by implementing the Grafana dashboard | https://github.com/doda25-team10/operation/pull/33| - |
-| **Aadesh** | Worked on **A3** by finalising the migration to Helm | https://github.com/doda25-team10/operation/pull/36 | https://github.com/doda25-team10/operation/pull/30 |
+| **Maciej** | - | - | - |
+| **Denis** | Finalized the **A4** extension to the project. Fixed git tagging for **A1** and SSL key usage for **A2**. | https://github.com/doda25-team10/operation/pull/31, https://github.com/doda25-team10/operation/pull/35, https://github.com/doda25-team10/app/pull/11, https://github.com/doda25-team10/model-service/pull/9 | https://github.com/doda25-team10/operation/pull/33 |
+| **Paul** |  Worked on **A4** by implementing the first part of traffic management dashboard | https://github.com/doda25-team10/operation/pull/33| - |
+| **Aadesh** | Worked on **A4** by finalising the traffic management | https://github.com/doda25-team10/operation/pull/36 | https://github.com/doda25-team10/operation/pull/30, https://github.com/doda25-team10/model-service/pull/9, https://github.com/doda25-team10/app/pull/11 |
+
+## Week Q2.7 (Jan 3+)
+
+| Team Member | Contribution Description | Merged PRs (Created) | Approved PRs (Reviewed) |
+| :--- | :--- | :--- | :--- |
+| **Andrea** | Worked on **A4** by updating the documentation of our application. | https://github.com/doda25-team10/operation/pull/38 | https://github.com/doda25-team10/app/pull/12, https://github.com/doda25-team10/operation/pull/37 |
+| **Yi** | Worked on **A4** by continuing implementing/documenting Conitnuous experimentation | https://github.com/doda25-team10/app/pull/12 | - |
+| **Maciej** | Worked on **A4** by implementing rate limiting. Excellent part still missing | https://github.com/doda25-team10/operation/pull/37 | - |
+| **Denis** | Worked on presentation slides | - | - |
+| **Paul** |  Worked on presentation slides | - | - |
+| **Aadesh** | Worked on presentation slides | - | - |
