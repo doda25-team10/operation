@@ -49,17 +49,24 @@ The system is composed of two primary microservices, communicating internally:
 
 ## 4. Request Flow & Traffic Management
 
+### Overview of the Additional Use Case
+
+In addition to standard request routing and traffic splitting, we have chosen to implement rate limiting to protect backend services from overload and abuse. Rate limiting is implemented as a per-user rate request limit, applied to all incoming client traffic. In our implementation, users are identified using unique request headers, ensuring that we can isolate abusive users from the rest of the user-base.
+
 ### Path of a Typical Request
 
 1. **Client Entry:** A user request is sent to `https://myapp.example.com`.
 2. **Istio Gateway:** The request enters the Istio Ingress Gateway.
-3. **Ingress VirtualService Routing:** The gateway-facing VirtualService (`myapp-istio-vs`) intercepts the request.
-4. **App Service Selection (Canary Logic):** The request is routed to either the V1 (stable) or V2 (preview) subset of the App Service Deployment based on weight. This random selection can be bypassed by using the `canary: enabled` header to select the preview version.
-5. **Internal Model Service Call:** The App Service calls the Model Service (`myapp-model-service`).
-6. **Model VirtualService Routing:** The `myapp-model-vs` VirtualService applies routing rules:
+3. **Rate Limiting Enforcement:** At the Istio Ingress Gateway, and before any VirtualService routing is evaluated, the request is evaluated against the configured rate limiting rules. These rules define a maximum number of requests allowed within a fixed time window:
+   - **Within Limit:** If the user's request limit has not been exceeded, the request proceeds through the normal VirtualService routing logic to the App Service.
+   - **Limit Exceeded**: If the rate limit is exceeded, the request is rejected immediately, and the client receives an `HTTP 429 Too Many Requests` response.
+4. **Ingress VirtualService Routing:** The gateway-facing VirtualService (`myapp-istio-vs`) intercepts the request.
+5. **App Service Selection (Canary Logic):** The request is routed to either the V1 (stable) or V2 (preview) subset of the App Service Deployment based on weight. This random selection can be bypassed by using the `canary: enabled` header to select the preview version.
+6. **Internal Model Service Call:** The App Service calls the Model Service (`myapp-model-service`).
+7. **Model VirtualService Routing:** The `myapp-model-vs` VirtualService applies routing rules:
    - Requests with label `version: v2` are routed to the V2 subset (`preview`) of the Model Service, which has been modified to always predict spam for any given message.
    - All other requests are routed to the V1 subset (`stable`) of the Model Service, which runs the normal prediction pipeline.
-7. **Response:** The Model Service returns the prediction to the App Service, which then returns the final response to the user.
+8. **Response:** The Model Service returns the prediction to the App Service, which then returns the final response to the user.
 
 This flow is illustrated in the figure below.
 
@@ -72,11 +79,3 @@ To monitor our application internally, we implement a monitoring stack with Prom
 Lastly, the figure below illustrates the physical deployment of our application, showing the Vagrant VMs that host the Kubernetes cluster, including the control plane and worker nodes, and how the pods and services may be distributed across them. Note that the distribution of services between the two workers may change, and Grafana, Prometheus, MetalLB, Istio, and Nginx pods have been omitted for brevity. Since all VMs share the same private subnet, they can easily communicate between each other.
 
 ![Figure 3. Physical structure of the VMs](images/vm_structure.jpg "Figure 3. Physical structure of the VMs")
-
-### Continuous Experimentation
-
-*Work in progress. Not yet complete.*
-
-### Additional Use Case
-
-*Work in progress. Not yet complete.*
