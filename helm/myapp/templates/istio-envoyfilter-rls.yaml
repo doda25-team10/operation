@@ -1,0 +1,94 @@
+{{- if and .Values.istio.enabled .Values.istio.rateLimit.enabled .Values.istio.rateLimit.rls.enabled }}
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: {{ include "myapp.componentName" (dict "root" . "component" "istio-rls-filter") }}
+  namespace: {{ .Values.istio.gateway.namespace | default "istio-system" }}
+  labels:
+    {{- include "myapp.componentLabels" (dict "root" . "component" "istio") | nindent 4 }}
+spec:
+  workloadSelector:
+    labels:
+{{- range $k, $v := .Values.istio.gateway.selectorLabels }}
+      {{ $k }}: {{ $v | quote }}
+{{- end }}
+  configPatches:
+    - applyTo: CLUSTER
+      match:
+        context: GATEWAY
+      patch:
+        operation: ADD
+        value:
+          name: rate_limit_cluster
+          type: STRICT_DNS
+          connect_timeout: 0.25s
+          lb_policy: ROUND_ROBIN
+          load_assignment:
+            cluster_name: rate_limit_cluster
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          address: {{ include "myapp.componentName" (dict "root" . "component" "istio-rls") }}.{{ .Values.istio.gateway.namespace | default "istio-system" }}.svc.cluster.local
+                          port_value: {{ .Values.istio.rateLimit.rls.service.port | default 8081 }}
+          http2_protocol_options: {}
+    - applyTo: HTTP_FILTER
+      match:
+        context: GATEWAY
+        listener:
+          filterChain:
+            filter:
+              name: "envoy.filters.network.http_connection_manager"
+              subFilter:
+                name: "envoy.filters.http.router"
+      patch:
+        operation: INSERT_BEFORE
+        value:
+          name: envoy.filters.http.ratelimit
+          typed_config:
+            "@type": type.googleapis.com/udpa.type.v1.TypedStruct
+            type_url: type.googleapis.com/envoy.extensions.filters.http.ratelimit.v3.RateLimit
+            value:
+              domain: {{ .Values.istio.rateLimit.rls.domain | default "myapp-ratelimit" }}
+              timeout: {{ .Values.istio.rateLimit.rls.timeout | default "0.5s" }}
+              failure_mode_deny: false
+              rate_limit_service:
+                grpc_service:
+                  envoy_grpc:
+                    cluster_name: rate_limit_cluster
+                  timeout: {{ .Values.istio.rateLimit.rls.timeout | default "0.5s" }}
+    - applyTo: HTTP_ROUTE
+      match:
+        context: GATEWAY
+        routeConfiguration:
+          name: "http.8080"
+          vhost:
+            name: "*:80"
+          route:
+            action: ANY
+      patch:
+        operation: MERGE
+        value:
+          typed_per_filter_config:
+            envoy.filters.http.ratelimit:
+              "@type": type.googleapis.com/udpa.type.v1.TypedStruct
+              type_url: type.googleapis.com/envoy.extensions.filters.http.ratelimit.v3.RateLimitPerRoute
+              value:
+                rate_limit_service:
+                  grpc_service:
+                    envoy_grpc:
+                      cluster_name: rate_limit_cluster
+                    timeout: {{ .Values.istio.rateLimit.rls.timeout | default "0.5s" }}
+                  transport_api_version: V3
+                rate_limits:
+                  - actions:
+                      - request_headers:
+                          header_name: {{ .Values.istio.rateLimit.keyHeader | default "x-user-id" | quote }}
+                          descriptor_key: "user_id"
+                  - actions:
+                      - generic_key:
+                          descriptor_key: "generic_key"
+                          descriptor_value: "global"
+{{- end }}
+

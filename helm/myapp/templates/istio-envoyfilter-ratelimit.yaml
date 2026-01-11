@@ -77,7 +77,8 @@ spec:
                   default_value:
                     numerator: 100
                     denominator: HUNDRED
-                status: {{ .Values.istio.rateLimit.responseStatus | default 429 }}
+                status:
+                  code: {{ .Values.istio.rateLimit.responseStatus | default 429 }}
                 response_body:
                   inline_string: {{ .Values.istio.rateLimit.responseBody | default "rate limit exceeded" | quote }}
                 response_headers_to_add:

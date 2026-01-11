@@ -145,9 +145,24 @@ istio:
 
   rateLimit:
     enabled: true
-    requestsPerMinute: 10
+    requestsPerMinute: 1000
     burst: 0
     keyHeader: "x-user-id"
     fallbackKey: "anonymous"
     responseStatus: 429
     responseBody: "rate limit exceeded"
+    rls:
+      enabled: true
+      image: "envoyproxy/ratelimit:19f2079f"
+      domain: "myapp-ratelimit"
+      perUserRequestsPerMinute: 10
+      perUserBurst: 0
+      globalRequestsPerMinute: 1000
+      globalBurst: 0
+      redis:
+        image: "redis:7.2"
+        storage: "1Gi"
+        persistenceEnabled: false
+      service:
+        port: 8081
+      timeout: "0.5s"

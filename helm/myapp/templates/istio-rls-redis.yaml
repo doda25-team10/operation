@@ -1,0 +1,59 @@
+{{- if and .Values.istio.enabled .Values.istio.rateLimit.enabled .Values.istio.rateLimit.rls.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "myapp.componentName" (dict "root" . "component" "istio-redis") }}
+  namespace: {{ .Values.istio.gateway.namespace | default "istio-system" }}
+  labels:
+    {{- include "myapp.componentLabels" (dict "root" . "component" "istio") | nindent 4 }}
+    app.kubernetes.io/name: {{ include "myapp.componentName" (dict "root" . "component" "istio-redis") }}
+    app.kubernetes.io/component: istio-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "myapp.componentName" (dict "root" . "component" "istio-redis") }}
+      app.kubernetes.io/component: istio-redis
+  template:
+    metadata:
+      labels:
+        {{- include "myapp.componentLabels" (dict "root" . "component" "istio") | nindent 8 }}
+        app.kubernetes.io/name: {{ include "myapp.componentName" (dict "root" . "component" "istio-redis") }}
+        app.kubernetes.io/component: istio-redis
+    spec:
+      containers:
+        - name: redis
+          image: {{ .Values.istio.rateLimit.rls.redis.image | default "redis:7.2" }}
+          args: ["--save", "", "--appendonly", "no"]
+          ports:
+            - containerPort: 6379
+          {{- if .Values.istio.rateLimit.rls.redis.persistenceEnabled }}
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+          {{- end }}
+      {{- if .Values.istio.rateLimit.rls.redis.persistenceEnabled }}
+      volumes:
+        - name: redis-data
+          emptyDir: {}
+      {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "myapp.componentName" (dict "root" . "component" "istio-redis") }}
+  namespace: {{ .Values.istio.gateway.namespace | default "istio-system" }}
+  labels:
+    {{- include "myapp.componentLabels" (dict "root" . "component" "istio") | nindent 4 }}
+    app.kubernetes.io/name: {{ include "myapp.componentName" (dict "root" . "component" "istio-redis") }}
+    app.kubernetes.io/component: istio-redis
+spec:
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: 6379
+  selector:
+    app.kubernetes.io/name: {{ include "myapp.componentName" (dict "root" . "component" "istio-redis") }}
+    app.kubernetes.io/component: istio-redis
+{{- end }}
+
