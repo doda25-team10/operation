@@ -77,3 +77,68 @@ To monitor our application internally, we implement a monitoring stack with Prom
 Lastly, the figure below illustrates the physical deployment of our application, showing the Vagrant VMs that host the Kubernetes cluster, including the control plane and worker nodes, and how the pods and services may be distributed across them. Note that the distribution of services between the two workers may change, and Grafana, Prometheus, MetalLB, Istio, and Nginx pods have been omitted for brevity. Since all VMs share the same private subnet, they can easily communicate between each other.
 
 ![Figure 3. Physical structure of the VMs](images/vm_structure.jpg "Figure 3. Physical structure of the VMs")
+
+### Additional Use Case: Rate Limiting
+
+To protect the system from excessive usage and ensure fair resource distribution, we implement **rate limiting** using Istio's EnvoyFilter. The implementation supports both **global** and **per-user** rate limits.
+
+#### Architecture
+
+Rate limiting is enforced at the Istio Ingress Gateway using two mechanisms:
+
+1. **Local Rate Limiting (Global):** A simple token-bucket rate limiter applied directly on the Envoy proxy. This provides a baseline protection against traffic spikes without external dependencies.
+
+2. **External Rate Limit Service (Per-User):** For per-user limits, an external Rate Limit Service (RLS) backed by Redis tracks request counts per user. This allows individual users to be throttled independently based on the `x-user-id` header.
+
+#### User Identification
+
+Users are identified via a **self-declared header** (`x-user-id`). When making a request, clients include their identifier in the request header:
+
+```
+curl -H "x-user-id: name" http://myapp.example.com/sms/
+```
+
+The rate limiter uses this header value as the key for tracking request counts. Each unique `x-user-id` value maintains its own independent rate limit counter. For example:
+- `x-user-id: alice` → separate counter (10 req/min)
+- `x-user-id: bob` → separate counter (10 req/min)
+- No header → falls back to global limit only
+
+> **Note:** This approach relies on clients truthfully putting their name in the x-user-id value. It works for our purpose of checking if the rate limiting works and throws 429 when it is exceeded. However, for stricter enforcement, user identity should be derived from authentication tokens (e.g., JWT claims) rather than self-declared headers.
+
+
+| Component | Description |
+| :--- | :--- |
+| **EnvoyFilter (Local)** | Applies global rate limiting directly on the ingress gateway |
+| **EnvoyFilter (RLS)** | Integrates the external RLS with the gateway |
+| **Rate Limit Service** | Envoy-compatible gRPC service for distributed rate limiting |
+| **Redis** | Backend storage for tracking per-user request counts |
+
+#### Configuration
+
+Rate limiting is configured via `values.yaml`:
+
+| Parameter | Default | Description |
+| :--- | :--- | :--- |
+| `istio.rateLimit.enabled` | `true` | Enable rate limiting |
+| `istio.rateLimit.requestsPerMinute` | `1000` | Global requests per minute limit |
+| `istio.rateLimit.rls.enabled` | `true` | Enable per-user rate limiting via RLS |
+| `istio.rateLimit.rls.perUserRequestsPerMinute` | `10` | Per-user requests per minute |
+| `istio.rateLimit.keyHeader` | `x-user-id` | Header used to identify users |
+
+#### Behaviour
+
+- **Global limit (1000 req/min):** Applied to all traffic regardless of user identity.
+- **Per-user limit (10 req/min):** Applied individually per `x-user-id` header value.
+- **Response:** When rate limited, clients receive HTTP `429 Too Many Requests`.
+
+#### Testing Rate Limits
+
+```bash
+# Test global rate limit (should succeed until 1000 requests/min exceeded)
+for i in $(seq 1 20); do curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8080/sms/; done
+
+# Test per-user rate limit (should return 429 after approx. 10 requests)
+for i in $(seq 1 15); do curl -s -o /dev/null -w "%{http_code}\n" -H "x-user-id: user123" http://localhost:8080/sms/; done
+```
+
+After exceeding the per-user limit, subsequent requests with the same `x-user-id` header will receive `429` responses until the rate limit window resets.
