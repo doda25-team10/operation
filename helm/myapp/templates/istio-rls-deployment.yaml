@@ -1,0 +1,73 @@
+{{- if and .Values.istio.enabled .Values.istio.rateLimit.enabled .Values.istio.rateLimit.rls.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "myapp.componentName" (dict "root" . "component" "istio-rls") }}
+  namespace: {{ .Values.istio.gateway.namespace | default "istio-system" }}
+  labels:
+    {{- include "myapp.componentLabels" (dict "root" . "component" "istio") | nindent 4 }}
+    app.kubernetes.io/name: {{ include "myapp.componentName" (dict "root" . "component" "istio-rls") }}
+    app.kubernetes.io/component: istio-rls
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "myapp.componentName" (dict "root" . "component" "istio-rls") }}
+      app.kubernetes.io/component: istio-rls
+  template:
+    metadata:
+      labels:
+        {{- include "myapp.componentLabels" (dict "root" . "component" "istio") | nindent 8 }}
+        app.kubernetes.io/name: {{ include "myapp.componentName" (dict "root" . "component" "istio-rls") }}
+        app.kubernetes.io/component: istio-rls
+    spec:
+      containers:
+        - name: ratelimit
+          image: {{ .Values.istio.rateLimit.rls.image | default "envoyproxy/ratelimit:v1.4.0" }}
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/ratelimit"]
+          ports:
+            - containerPort: {{ .Values.istio.rateLimit.rls.service.port | default 8081 }}
+          env:
+            - name: REDIS_SOCKET_TYPE
+              value: tcp
+            - name: REDIS_URL
+              value: {{ include "myapp.componentName" (dict "root" . "component" "istio-redis") }}:6379
+            - name: RUNTIME_ROOT
+              value: /data
+            - name: RUNTIME_SUBDIRECTORY
+              value: ratelimit
+            - name: RUNTIME_IGNOREDOTFILES
+              value: "true"
+            - name: USE_STATSD
+              value: "false"
+          volumeMounts:
+            - name: ratelimit-config
+              mountPath: /data/ratelimit/config
+      volumes:
+        - name: ratelimit-config
+          configMap:
+            name: {{ include "myapp.componentName" (dict "root" . "component" "istio-rls-config") }}
+            items:
+              - key: config.yaml
+                path: config.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "myapp.componentName" (dict "root" . "component" "istio-rls") }}
+  namespace: {{ .Values.istio.gateway.namespace | default "istio-system" }}
+  labels:
+    {{- include "myapp.componentLabels" (dict "root" . "component" "istio") | nindent 4 }}
+    app.kubernetes.io/name: {{ include "myapp.componentName" (dict "root" . "component" "istio-rls") }}
+    app.kubernetes.io/component: istio-rls
+spec:
+  ports:
+    - name: grpc
+      port: {{ .Values.istio.rateLimit.rls.service.port | default 8081 }}
+      targetPort: {{ .Values.istio.rateLimit.rls.service.port | default 8081 }}
+  selector:
+    app.kubernetes.io/name: {{ include "myapp.componentName" (dict "root" . "component" "istio-rls") }}
+    app.kubernetes.io/component: istio-rls
+{{- end }}
+

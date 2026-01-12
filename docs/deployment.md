@@ -51,6 +51,39 @@ The system is composed of two primary microservices, communicating internally:
 
 In addition to standard request routing and traffic splitting, we have chosen to implement rate limiting to protect backend services from overload and abuse. Rate limiting is implemented as a per-user rate request limit, applied to all incoming client traffic. In our implementation, users are identified using unique request headers, ensuring that we can isolate abusive users from the rest of the user-base.
 
+#### Architecture
+
+Rate limiting is enforced at the Istio Ingress Gateway using two mechanisms:
+
+1. **Local Rate Limiting (Global):** A simple token-bucket rate limiter applied directly on the Envoy proxy. This provides a baseline protection against traffic spikes without external dependencies.
+
+2. **External Rate Limit Service (Per-User):** For per-user limits, an external Rate Limit Service (RLS) backed by Redis tracks request counts per user. This allows individual users to be throttled independently based on the `x-user-id` header.
+
+#### User Identification
+
+Users are identified via a **self-declared header** (`x-user-id`). When making a request, clients include their identifier in the request header:
+
+```
+curl -H "x-user-id: name" http://myapp.example.com/sms/
+```
+
+The rate limiter uses this header value as the key for tracking request counts. Each unique `x-user-id` value maintains its own independent rate limit counter. 
+
+
+| Component | Description |
+| :--- | :--- |
+| **EnvoyFilter (Local)** | Applies global rate limiting directly on the ingress gateway |
+| **EnvoyFilter (RLS)** | Integrates the external RLS with the gateway |
+| **Rate Limit Service** | Envoy-compatible gRPC service for distributed rate limiting |
+| **Redis** | Backend storage for tracking per-user request counts |
+
+
+#### Behaviour
+
+- **Global limit (1000 req/min):** Applied to all traffic regardless of user identity.
+- **Per-user limit (10 req/min):** Applied individually per `x-user-id` header value.
+- **Response:** When rate limited, clients receive HTTP `429 Too Many Requests`.
+
 ### Path of a Typical Request
 
 1. **Client Entry:** A user request is sent to `https://myapp.example.com`.
@@ -77,3 +110,4 @@ To monitor our application internally, we implement a monitoring stack with Prom
 Lastly, the figure below illustrates the physical deployment of our application, showing the Vagrant VMs that host the Kubernetes cluster, including the control plane and worker nodes, and how the pods and services may be distributed across them. Note that the distribution of services between the two workers may change, and Grafana, Prometheus, MetalLB, Istio, and Nginx pods have been omitted for brevity. Since all VMs share the same private subnet, they can easily communicate between each other.
 
 ![Figure 3. Physical structure of the VMs](images/vm_structure.jpg "Figure 3. Physical structure of the VMs")
+

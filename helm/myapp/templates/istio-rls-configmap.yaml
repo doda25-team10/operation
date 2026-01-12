@@ -1,0 +1,23 @@
+{{- if and .Values.istio.enabled .Values.istio.rateLimit.enabled .Values.istio.rateLimit.rls.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "myapp.componentName" (dict "root" . "component" "istio-rls-config") }}
+  namespace: {{ .Values.istio.gateway.namespace | default "istio-system" }}
+  labels:
+    {{- include "myapp.componentLabels" (dict "root" . "component" "istio") | nindent 4 }}
+data:
+  config.yaml: |
+    domain: {{ .Values.istio.rateLimit.rls.domain | default "myapp-ratelimit" }}
+    descriptors:
+      - key: user_id
+        rate_limit:
+          unit: minute
+          requests_per_unit: {{ .Values.istio.rateLimit.rls.perUserRequestsPerMinute | default 10 }}
+      - key: generic_key
+        value: global
+        rate_limit:
+          unit: minute
+          requests_per_unit: {{ .Values.istio.rateLimit.rls.globalRequestsPerMinute | default 1000 }}
+{{- end }}
+
