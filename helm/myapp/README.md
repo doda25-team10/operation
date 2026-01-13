@@ -240,31 +240,33 @@ helm upgrade myapp ./helm/myapp --namespace sms-stack --create-namespace
 
 ## Testing out Traffic Management
 In order to test out the traffic management, please follow the following steps:
-0. Optional: Run `minikube delete` to start off completely fresh, might be needed if the traffic management doesn't work after following these instructions
-1. Run `minikube start` and then `minikube addons enable ingress`
-2. Install Istio and run `istioctl install`
-3. Enable Istio `kubectl label ns default istio-injection=enabled`
-4. Install the Helm Chart (`helm install myapp ./helm/myapp/ -n sms-stack --create-namespace`)
-5. Run `minikube tunnel`
-6. Find out the external IP of your ingress gateway by running `kubectl get service -n istio-system`
+1. Optional: Run `minikube delete` to start off completely fresh, might be needed if the traffic management doesn't work after following these instructions
+2. Run `minikube start` and then `minikube addons enable ingress`
+3. Install Istio and run `istioctl install`
+4. Create the namespace in which you want to work, in our case it will be `sms-stack`: `kubectl create namespace sms-stack`
+5. Enable Istio by running `kubectl label ns default istio-injection=enabled` and `kubectl label ns sms-stack istio-injection=enabled`. 
+6. Install the Helm Chart (`helm upgrade --install myapp ./helm/myapp/ -n sms-stack`)
+7. Wait until all pods are ready, u can check this by running `kubectl get pods - sms-stack` and checking the READY column
+8. Run `minikube tunnel`
+9. Find out the external IP of your ingress gateway by running `kubectl get service -n istio-system`
 You should get something similar to the following, but the external IP can differ. There will likely also be
 other rows returned but these are not relevant for this.
 ```
 NAME                          TYPE           CLUSTER-IP       EXTERNAL-IP    PORT(S)                                          AGE
 istio-ingressgateway          LoadBalancer   10.98.37.197     10.98.37.197   15021:30870/TCP,80:30522/TCP,443:32060/TCP       3d19h
 ```
-8. Access the external IP in the browser. With a 90% chance, you will see the stable version of the app/model. This version
+10. Access the external IP in the browser. With a 90% chance, you will see the stable version of the app/model. This version
 should work exactly as expected and should not contain any abnormal behaviour. With a 10% chance, you will see the experimental version.
 This version has a different message on the base URL, namely 'Hello World from outer space!'. Furthermore, when you access {URL}/sms, any message you will classify should *always* return spam. Once you access the app and get specific version, you are stuck with it
 for a certain amount of time. You can see which version you have in your cookies, these are named v1 and v2, and you can delete these 
 and refresh your page as often as you want in order to be convinced the 90/10 split is correctly implemented.
-9. We can do the same using curl requests, but this works a little differently. Classifying a message using
+11. We can do the same using curl requests, but this works a little differently. Classifying a message using
 `curl -X POST http://{EXTERNAL_IP}/sms/   -H "Content-Type: application/json"  -d '{"sms": "hi"}'` should return the correct
 output 90% of the time (`{"classifier":null,"result":"ham","sms":"hi","guess":null}` in the case of our message), 
 and spam 10% of the time (`{"classifier":null,"result":"spam","sms":"hi","guess":null}`). When we add the Canary "bypass" header, 
 `curl -X POST http://{EXTERNAL_IP}/sms/   -H "Content-Type: application/json" -H "canary: enabled"  -d '{"sms": "hi"}'`, you should
-*always* get `{"classifier":null,"result":"spam","sms":"hi","guess":null}` regardless of the message.
-10. For the home page: `curl -X GET http://{EXTERNAL_IP}/` should return `Hello World!  lib-version=0.1.0` 90% of the time and
+*always* get `{"classifier":null,"result":"spam","sms":"hi","guess":null}` regardless of the message. 
+12. For the home page: `curl -X GET http://{EXTERNAL_IP}/` should return `Hello World!  lib-version=0.1.0` 90% of the time and
 `Hello World from outer space!  lib-version=0.1.0` 10% of the time. `curl -X GET http://{EXTERNAL_IP}/ -H "canary: enabled"`
 should *always* return `Hello World from outer space!  lib-version=0.1.0`
 
