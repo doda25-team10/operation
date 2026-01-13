@@ -246,7 +246,7 @@ In order to test out the traffic management, please follow the following steps:
 4. Create the namespace in which you want to work, in our case it will be `sms-stack`: `kubectl create namespace sms-stack`
 5. Enable Istio by running `kubectl label ns default istio-injection=enabled` and `kubectl label ns sms-stack istio-injection=enabled`. 
 6. Install the Helm Chart (`helm upgrade --install myapp ./helm/myapp/ -n sms-stack`)
-7. Wait until all pods are ready, u can check this by running `kubectl get pods - sms-stack` and checking the READY column
+7. Wait until all pods are ready, u can check this by running `kubectl get pods -n sms-stack` and checking the READY column
 8. Run `minikube tunnel`
 9. Find out the external IP of your ingress gateway by running `kubectl get service -n istio-system`
 You should get something similar to the following, but the external IP can differ. There will likely also be
