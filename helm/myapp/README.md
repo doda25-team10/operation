@@ -257,25 +257,21 @@ istio-ingressgateway          LoadBalancer   10.98.37.197     10.98.37.197   150
 ```
 10. Access the external IP in the browser. With a 90% chance, you will see the stable version of the app/model. This version
 should work exactly as expected and should not contain any abnormal behaviour. With a 10% chance, you will see the experimental version.
-This version has a different message on the base URL, namely 'Hello World from outer space!'. Furthermore, when you access {URL}/sms, any message you will classify should *always* return spam. Once you access the app and get specific version, you are stuck with it
-for a certain amount of time. You can see which version you have in your cookies, these are named v1 and v2, and you can delete these 
+When you access {URL}/sms from the experimental version, the UI should be different and any message you will classify should *always* return spam. 
+The classification always returning spam is simply so we can show the experimental app and model go hand in hand.
+Once you access the app and a get specific version, you are stuck with it for a certain amount of time. 
+You can see which version you have in your cookies, these are named v1 and v2, and you can delete these 
 and refresh your page as often as you want in order to be convinced the 90/10 split is correctly implemented.
 11. We can do the same using curl requests, but this works a little differently. Classifying a message using
 `curl -X POST http://{EXTERNAL_IP}/sms/   -H "Content-Type: application/json"  -d '{"sms": "hi"}'` should return the correct
 output 90% of the time (`{"classifier":null,"result":"ham","sms":"hi","guess":null}` in the case of our message), 
 and spam 10% of the time (`{"classifier":null,"result":"spam","sms":"hi","guess":null}`). When we add the Canary "bypass" header, 
 `curl -X POST http://{EXTERNAL_IP}/sms/   -H "Content-Type: application/json" -H "canary: enabled"  -d '{"sms": "hi"}'`, you should
-*always* get `{"classifier":null,"result":"spam","sms":"hi","guess":null}` regardless of the message. 
-12. For the home page: `curl -X GET http://{EXTERNAL_IP}/` should return `Hello World!  lib-version=0.1.0` 90% of the time and
-`Hello World from outer space!  lib-version=0.1.0` 10% of the time. `curl -X GET http://{EXTERNAL_IP}/ -H "canary: enabled"`
-should *always* return `Hello World from outer space!  lib-version=0.1.0`
-
+*always* get `{"classifier":null,"result":"spam","sms":"hi","guess":null}` regardless of the message.
 
 General information:
 The default Ingress Gateway selector is set to `ingressgateway`. If deploying to a cluster where the Istio Ingress Gateway 
 has a different label, override the `istio.selectorLabels.istio` value in `values.yaml`.
-
-TODO: Once an actual experimental version of the model/app has been implemented, their description should be changed here.
 
 ---
 
