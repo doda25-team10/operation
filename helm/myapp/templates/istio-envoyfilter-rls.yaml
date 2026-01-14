@@ -65,8 +65,8 @@ spec:
           name: "http.8080"
           vhost:
             name: "*:80"
-          route:
-            action: ANY
+            route:
+              action: ANY
       patch:
         operation: MERGE
         value:
