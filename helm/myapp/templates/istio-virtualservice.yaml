@@ -30,7 +30,7 @@ spec:
     - match:
         - headers:
             cookie:
-              regex: "^(.*?;)?(user_group=v2)(;.*)?$"
+              regex: "^(.*?; ?)?(user_group=v2)(;.*)?$"
       route:
         - destination:
             host: {{ include "myapp.appServiceName" . }}
@@ -38,7 +38,7 @@ spec:
     - match:
         - headers:
             cookie:
-              regex: "^(.*?;)?(user_group=v1)(;.*)?$"
+              regex: "^(.*?; ?)?(user_group=v1)(;.*)?$"
       route:
         - destination:
             host: {{ include "myapp.appServiceName" . }}
