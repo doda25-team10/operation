@@ -69,3 +69,16 @@
 | **Denis** | Worked on presentation slides | - | - |
 | **Paul** |  Worked on presentation slides | - | - |
 | **Aadesh** | Updated traffic management for **A4** and worked on presentation slides | https://github.com/doda25-team10/operation/pull/36 | https://github.com/doda25-team10/operation/pull/34 |
+
+## Week Q2.8 (Jan 10+)
+
+_Note that during this week, we had a group meeting to practice our presentation. As such, everyone prepared for it, and also worked on their parts to make everything smoother and fit into our 10-minute presentation window._
+
+| Team Member | Contribution Description | Merged PRs (Created) | Approved PRs (Reviewed) |
+| :--- | :--- | :--- | :--- |
+| **Andrea** | Worked on the final presentation, shortening some components to fit into the 10-minute window. Started revising slides and code in preparation for Q&A. | - | https://github.com/doda25-team10/app/pull/12 |
+| **Yi** | Worked on **A4** by implementing metrics tracking for stable and experimental app versions | https://github.com/doda25-team10/app/pull/12, https://github.com/doda25-team10/app/pull/13, https://github.com/doda25-team10/app/pull/10/commits | https://github.com/doda25-team10/operation/pull/39 |
+| **Maciej** | Worked on the final presentation, shortening some components to fit into the 10-minute window. Started revising slides and code in preparation for Q&A. | - | - |
+| **Denis** | Worked on the final presentation, shortening some components to fit into the 10-minute window. Started revising slides and code in preparation for Q&A. | - | https://github.com/doda25-team10/operation/pull/39 |
+| **Paul** |  Worked on the final presentation, shortening some components to fit into the 10-minute window. Started revising slides and code in preparation for Q&A. | - | https://github.com/doda25-team10/operation/pull/38 |
+| **Aadesh** | Updated traffic management to ensure that it is compatible with the latest changes that have been made for A4 | https://github.com/doda25-team10/operation/pull/39 | https://github.com/doda25-team10/app/pull/13 |
