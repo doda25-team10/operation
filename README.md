@@ -3,10 +3,13 @@
 This repository contains the necessary configuration to run and operate the services developed by DODA 2025 Team 10.
 
 1. [Project Repositories](#project-repositories)
-2. [Project Structure](#project-structure)
-3. [Getting Started](#getting-started)
-4. [Cleanup](#cleanup)
-5. [Assigment Comments](#comments-for-a3)
+2. [Overview of the Project Components](#overview-of-the-project-components)
+3. [Getting Started with Docker](#getting-started-with-docker)
+4. [Provisioning the Kubernetes Cluster](#provisioning-the-kubernetes-cluster)
+5. [Helm-based Kubernetes Deployment](#helm-based-kubernetes-deployment)
+6. [Documentation Map](#documentation-map)
+
+---
 
 ## Project Repositories
 
@@ -19,11 +22,23 @@ This repository contains the necessary configuration to run and operate the serv
 
 ---
 
-## Project Structure
+## Overview of the Project Components
 
-* [docker-compose.yml](/docker-compose.yml): Defines and starts the Docker containers by retrieving the required images.
-* `README.md`: Provides instructions for startup, usage, and general information about the project.
-* [Local model/ folder](/model/): Includes the trained model files when using a custom model as well as the output of the trained model.
+This project relies on several key tools and technologies to manage development, deployment, and observability. Understanding their role will help you follow the steps in this README more easily.
+
+| Component                          | Purpose / Role                                                                                                                                                                   |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Docker**                         | Containerizes the application and ML model. Used to build images and run services locally or in Kubernetes. You will use it first to start all services quickly on your machine. |
+| **Docker Compose**                 | Orchestrates multiple Docker containers together. Provides a simple way to run the app, model, and monitoring stack without Kubernetes.                                          |
+| **Vagrant & VirtualBox**           | Used to provision virtual machines that host the Kubernetes cluster. Vagrant automates VM creation; VirtualBox provides the hypervisor.                                          |
+| **Ansible**                        | Automates the provisioning and configuration of the Kubernetes cluster and associated tools (MetalLB, Nginx Ingress, etc.). Runs on top of the Vagrant VMs.                      |
+| **Kubernetes**                     | Container orchestration platform. Manages pods, services, and deployments for the app and model. Ensures high availability, scaling, and internal networking.                    |
+| **Helm**                           | Kubernetes package manager. Simplifies deploying the app and model services along with Prometheus/Grafana using a single chart.                                                  |
+| **Istio**                          | Service mesh for traffic management. Handles canary releases, request routing, and rate limiting at the network layer.                                                           |
+| **Prometheus & Grafana**           | Observability stack. Prometheus collects metrics from services, and Grafana visualizes them in dashboards.                                                                       |
+| **Argo CD (Optional / Extension)** | GitOps controller that can automate deployment by syncing the cluster state with the Helm chart in Git. Reduces manual Helm commands and ensures reproducibility.                |
+
+---
 
 ## Getting Started with Docker
 
@@ -96,7 +111,7 @@ docker compose stop
 
 ---
 
-## Provisioning  the Kubernetes cluster
+## Provisioning the Kubernetes Cluster
 
 ### Prerequisites
 
@@ -138,7 +153,7 @@ The ```.env``` can be changed according to your preferences. Within it, you can 
 
 ---
 
-## Helm-based Kubernetes deployment
+## Helm-based Kubernetes Deployment
 
 The automated provisioning (Ansible + Vagrant) bootstraps the Kubernetes nodes only. **It deliberately does _not_ install the application** so that reviewers can run the Helm chart on any compatible cluster (including Minikube/kind). More information can be found in the README inside the helm folder. Deploy the stack manually once the cluster is ready:
 
@@ -180,50 +195,14 @@ kubectl -n sms-stack port-forward svc/myapp-grafana-svc 3000:3000
 
 ---
 
-## How to check if the correct version of conteinerd, runc and kubelet are downloaded:
+## Documentation Map
 
-Terminal 1:
+This project contains several documents and READMEs to guide you through specific parts of the system. Use the links below to dive deeper into the topics that interest you:
 
-```bash
-vagrant up
-vagrant provision 
-```
-
-(It should work for a bit and either give ok or changed for all of the tasks)
-
-Terminal 2:
-in the operation
-
-```bash
-Vagrant ssh ctrl
-```
-
-```bash
-dpkg-query -W -f='${Version}\n' containerd 
-```
-
-This will show the version installed for containerd (should be 1.7.24)
-
-```bash
-dpkg-query -W -f='${Version}\n' runc 
-```
-
-This should also show the version installed for runc (should be 1.1.12)
-
-```bash
-apt-cache policy kubelet
-```
-
-Here, it should print the version of the kubernetes (should be 1.32.4)
-
-```bash
-systemctl is-enabled kubelet 
-```
-
-It should return enabled
-
-```bash
-systemctl is-active kubelet 
-```
-
-Should return activating
+| File.                                                                                             | Description                                                                                                                                                                                                                 |
+| ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **[operation/README.md](https://github.com/doda25-team10/operation/blob/main/README.md)**         | Step-by-step guide for running and operating the services locally using Docker, provisioning the Kubernetes cluster with Vagrant & Ansible, and deploying with Helm.                                                        |
+| **[helm/README.md](https://github.com/doda25-team10/operation/blob/main/helm/README.md)**         | Explains the Helm chart structure, file contents, `values.yaml` configuration, and how to deploy and customize the app stack in Kubernetes. Includes details about Prometheus, Grafana dashboards, and traffic management.  |
+| **[docs/deployment.md](https://github.com/doda25-team10/operation/blob/main/docs/deployment.md)** | Provides a high-level overview of the deployment architecture, request flow, canary release strategy, rate limiting, monitoring, and physical cluster setup. Good for understanding why the system works the way it does. |
+| **[docs/extension.md](https://github.com/doda25-team10/operation/blob/main/docs/extension.md)**   | Proposes an optional GitOps extension using Argo CD for automated deployment. Explains motivation, architecture, implementation plan, and benefits like drift detection and improved release management.                    |
+| **[docs/experimentation.md](https://github.com/doda25-team10/operation/blob/main/docs/experimentation.md)**   | Documents the experimentation workflow and results.                    |
