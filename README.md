@@ -93,15 +93,11 @@ To stop and remove both containers and images, run:
 docker compose down --rmi all
 ```
 
----
-
 To stop and remove the containers while leaving the images intact, run:
 
 ```bash
 docker compose down 
 ```
-
----
 
 To stop the containers temporarily while keeping them intact, run:
 
