@@ -226,35 +226,21 @@
         path: /etc/containerd/config.toml
         regexp: "^[ ]*disable_apparmor ="
         line: "    disable_apparmor = true"
-        state: present
-      become: true
-      tags: ['setup', 'containerd']
+      notify: Restart containerd
 
     - name: Update sandbox image
       lineinfile:
         path: /etc/containerd/config.toml
         regexp: "^[ ]*sandbox_image ="
         line: "    sandbox_image = \"registry.k8s.io/pause:3.10\""
-        state: present
-      become: true
-      tags: ['setup', 'containerd']
+      notify: Restart containerd
 
     - name: Set SystemdCgroup
       lineinfile:
         path: /etc/containerd/config.toml
         regexp: "^[ ]*SystemdCgroup ="
         line: "            SystemdCgroup = true"
-        state: present
-      become: true
-      tags: ['setup', 'containerd']
-
-    - name: Restart containerd to apply new config
-      service:
-        name: containerd
-        state: restarted
-      when: not containerd_conf.stat.exists
-      become: true
-      tags: ['setup', 'containerd']
+      notify: Restart containerd
             
     #Step 12: Enable and start kubelet
     - name: Enable and start kubelet
@@ -269,3 +255,9 @@
             name: kubelet
             state: started
           tags: ['kubernetes']
+
+  handlers:
+    - name: Restart containerd
+      service:
+        name: containerd
+        state: restarted
