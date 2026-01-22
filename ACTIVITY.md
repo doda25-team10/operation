@@ -83,3 +83,15 @@ _Note that during this week, we had a group meeting to practice our presentation
 | **Denis** | Worked on the final presentation, shortening some components to fit into the 10-minute window. Started revising slides and code in preparation for Q&A. | - | https://github.com/doda25-team10/operation/pull/39 |
 | **Paul** |  Worked on the final presentation, shortening some components to fit into the 10-minute window. Started revising slides and code in preparation for Q&A. | - | https://github.com/doda25-team10/operation/pull/38 |
 | **Aadesh** | Updated traffic management to ensure that it is compatible with the latest changes that have been made for A4 | https://github.com/doda25-team10/operation/pull/39 | https://github.com/doda25-team10/app/pull/13 |
+
+## Week Q2.9 (Jan 17+)
+
+| Team Member | Contribution Description                                         | Merged PRs (Created)                                                                         | Approved PRs (Reviewed) |
+| :---------- | :--------------------------------------------------------------- | :------------------------------------------------------------------------------------------- | :---------------------- |
+| **Andrea**  | -                                                                | -                                                                                            | -                       |
+| **Yi**      | -                                                                | -                                                                                            | -                       |
+| **Maciej**  | -                                                                | -                                                                                            | -                       |
+| **Denis**   | -                                                                | -                                                                                            | -                       |
+| **Paul**    | worked on *a4* by adding a new metric to be collected in the app | [https://github.com/doda25-team10/app/pull/15](https://github.com/doda25-team10/app/pull/15) | -                       |
+| **Aadesh**  | -                                                                | -                                                                                            | -                       |
+
