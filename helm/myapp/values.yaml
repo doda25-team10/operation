@@ -11,8 +11,8 @@ app:
   replicaCount: 2
   image:
     repository: "ghcr.io/doda25-team10/app"
-    tagStable: "0.0.10"
-    tagExperiment: "0.0.11"
+    tagStable: "0.0.11"
+    tagExperiment: "0.0.12"
     pullPolicy: Always
   service:
     type: ClusterIP
