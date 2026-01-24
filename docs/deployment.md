@@ -58,7 +58,10 @@ Traffic management is handled by Istio custom resources: a **Gateway** for exter
 
 ### Observability Stack
 
-**Prometheus** scrapes metrics from the App Service at `/sms/metrics` every 5 seconds via a ServiceMonitor. **Grafana** visualises these metrics through pre-configured dashboards. **Alertmanager** handles notifications for critical thresholds.
+* **Prometheus:** Deployed internally, configured to scrape metrics from the App Service.
+  * **Scrape Configuration:** The `ServiceMonitor` targets the app pods on the path `/sms/metrics` every **5 seconds**.
+* **Grafana:** Enables collected app and model metrics to be visualised with the provided dashboards.
+* **Alertmanager:** Handles notifications for critical thresholds.
 
 ---
 
