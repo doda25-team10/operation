@@ -1,4 +1,24 @@
 # Deployment Documentation
+**Purpose:** This document provides a comprehensive overview of the SMS Checker deployment, enabling new team members to understand the system architecture and contribute to design discussions.
+
+---
+
+## Table of Contents
+
+- [1. High-Level Overview](#1-high-level-overview)
+- [2. Access & Connectivity](#2-access--connectivity)
+- [3. Deployment Structure](#3-deployment-structure)
+  - [Core Workloads](#core-workloads)
+  - [Observability Stack](#observability-stack)
+  - [Supporting Resources](#supporting-resources)
+  - [Istio Traffic Management](#istio-traffic-management)
+- [4. Request Flow & Traffic Management](#4-request-flow--traffic-management)
+  - [Overview of the Additional Use Case](#overview-of-the-additional-use-case)
+  - [Path of a Typical Request](#path-of-a-typical-request)
+  - [Canary Release & Traffic Split](#canary-release--traffic-split)
+- [Further Reading](#further-reading)
+
+---
 
 ## 1. High-Level Overview
 
@@ -44,6 +64,20 @@ The system is composed of two primary microservices, communicating internally:
 * **Prometheus:** Deployed internally, configured to scrape metrics from the App service.
   * **Scrape Configuration:** The `ServiceMonitor` targets the app pods on the path `/sms/metrics` every **5 seconds**.
 * **Grafana:** Enables collected app and model metrics to be visualised with the provided dashboards.
+
+### **Supporting Resources**
+
+* **DestinationRules** (`myapp-app-dr`, `myapp-model-dr`): Define the v1/v2 subsets for traffic routing.
+* **ConfigMaps**: Store environment variables and Grafana dashboard definitions.
+* **Secrets**: Hold sensitive data such as SMTP credentials and TLS certificates.
+* **PrometheusRule**: Defines alerting rules (e.g., `TooManyRequests`).
+* **Alertmanager**: Handles alert routing and notifications.
+
+### **Istio Traffic Management**
+
+* **Gateway** (`gateway`): Accepts external traffic on port 80 and routes it into the mesh.
+* **VirtualServices** (`myapp-istio-vs`, `myapp-model-vs`): Define routing rules including the 90/10 canary split and version consistency.
+* **EnvoyFilters**: Extend gateway functionality with rate limiting capabilities.
 
 ## 4. Request Flow & Traffic Management
 
@@ -111,3 +145,26 @@ Lastly, the figure below illustrates the physical deployment of our application,
 
 ![Figure 3. Physical structure of the VMs](images/vm_structure.jpg "Figure 3. Physical structure of the VMs")
 
+| VM | Role | Key Components |
+|:---|:-----|:---------------|
+| **ctrl** | Control Plane | Kubernetes API, etcd, scheduler |
+| **node-1** | Worker | App pods, Model pods, Prometheus |
+| **node-2** | Worker | App pods, Grafana, Redis, RLS |
+
+> **Note:** Pod distribution across workers is managed by the Kubernetes scheduler and may vary.
+
+### Canary Release & Traffic Split
+
+The **90/10 traffic split** is configured in `helm/myapp/values.yaml` under `istio.virtualService.weightStable` and `istio.virtualService.weightExperiment`. The routing decision is made by VirtualService `myapp-istio-vs` at the Istio Ingress Gateway.
+
+* **Header bypass:** Adding `canary: enabled` header routes directly to v2 (preview).
+* **Sticky sessions:** After a user's first visit, a `user_group` cookie is set (`v1` or `v2`) ensuring subsequent requests route to the same version for 24 hours.
+* **Version consistency:** App v1 always calls Model v1, and App v2 always calls Model v2. This is enforced by `myapp-model-vs` which routes based on the calling pod's `version` label.
+
+---
+
+## Further Reading
+
+* [Helm Chart Documentation](../helm/myapp/README.md)
+* [Continuous Experimentation](./continuous-experimentation.md)
+* [Extension Proposal](./extension.md)
