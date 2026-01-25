@@ -260,14 +260,16 @@ should work exactly as expected and should not contain any abnormal behaviour. W
 When you access {URL}/sms from the experimental version, the UI should be different and any message you will classify should *always* return spam. 
 The classification always returning spam is simply so we can show the experimental app and model go hand in hand.
 Once you access the app and a get specific version, you are stuck with it for a certain amount of time. 
-You can see which version you have in your cookies, these are named v1 and v2, and you can delete these 
-and refresh your page as often as you want in order to be convinced the 90/10 split is correctly implemented.
-11. We can do the same using curl requests, but this works a little differently. Classifying a message using
-`curl -X POST http://{EXTERNAL_IP}/sms/   -H "Content-Type: application/json"  -d '{"sms": "hi"}'` should return the correct
-output 90% of the time (`{"classifier":null,"result":"ham","sms":"hi","guess":null}` in the case of our message), 
-and spam 10% of the time (`{"classifier":null,"result":"spam","sms":"hi","guess":null}`). When we add the Canary "bypass" header, 
-`curl -X POST http://{EXTERNAL_IP}/sms/   -H "Content-Type: application/json" -H "canary: enabled"  -d '{"sms": "hi"}'`, you should
-*always* get `{"classifier":null,"result":"spam","sms":"hi","guess":null}` regardless of the message.
+You can see which version you have in your cookies, these are named v1 and v2 for the stable and experimental version respectively, 
+and you can delete these and refresh your page as often as you want in order to be convinced the 90/10 split is correctly implemented.
+11. This can be done using curl requests as well by running 
+`curl -X POST http://{EXTERNAL_IP}/sms/ -H "Content-Type: application/json" -d '{"sms": "hi"}' -c cookies.txt`. This will
+save the received cookies in a `cookies.txt` file in the directory your terminal is opened in. You can open this file and verify
+which version you have (v1/v2). To send these cookies, run the command `curl -X POST http://{EXTERNAL_IP}/sms/ -H "Content-Type: application/json" -d '{"sms": "hi"}' -b cookies.txt`
+For v1, you should *always* get the correct output (`{"classifier":null,"result":"ham","sms":"hi","guess":null}` in the case of our message).
+For v2, you should *always* get spam returned (`{"classifier":null,"result":"spam","sms":"hi","guess":null}`), regardless of the message.
+To force the versions, you can add the flag `-H "Canary: stable` for v1 and `-H "Canary: experimental"` for v2. Using no cookies and no headers will 
+result in a 90/10 split for v1 and v2 respectively.
 
 General information:
 The default Ingress Gateway selector is set to `ingressgateway`. If deploying to a cluster where the Istio Ingress Gateway 
