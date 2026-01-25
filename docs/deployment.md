@@ -1,4 +1,21 @@
 # Deployment Documentation
+**Purpose:** This document provides a comprehensive overview of the SMS Checker deployment, enabling new team members to understand the system architecture and contribute to design discussions.
+
+---
+
+## Table of Contents
+
+- [1. High-Level Overview](#1-high-level-overview)
+- [2. Access & Connectivity](#2-access--connectivity)
+- [3. Deployment Structure](#3-deployment-structure)
+  - [Core Workloads](#core-workloads)
+  - [Observability Stack](#observability-stack)
+  - [Supporting Resources](#supporting-resources)
+- [4. Request Flow & Traffic Management](#4-request-flow--traffic-management)
+  - [Overview of the Additional Use Case](#overview-of-the-additional-use-case)
+  - [Path of a Typical Request](#path-of-a-typical-request)
+
+---
 
 ## 1. High-Level Overview
 
@@ -44,6 +61,14 @@ The system is composed of two primary microservices, communicating internally:
 * **Prometheus:** Deployed internally, configured to scrape metrics from the App service.
   * **Scrape Configuration:** The `ServiceMonitor` targets the app pods on the path `/sms/metrics` every **5 seconds**.
 * **Grafana:** Enables collected app and model metrics to be visualised with the provided dashboards.
+
+### **Supporting Resources**
+
+* **DestinationRules** (`myapp-app-dr`, `myapp-model-dr`): Define the v1/v2 subsets for traffic routing.
+* **ConfigMaps**: Store environment variables and Grafana dashboard definitions.
+* **Secrets**: Hold sensitive data such as SMTP credentials and TLS certificates.
+* **PrometheusRule**: Defines alerting rules (e.g., `TooManyRequests`).
+* **Alertmanager**: Handles alert routing and notifications.
 
 ## 4. Request Flow & Traffic Management
 
