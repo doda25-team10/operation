@@ -11,9 +11,12 @@
   - [Core Workloads](#core-workloads)
   - [Observability Stack](#observability-stack)
   - [Supporting Resources](#supporting-resources)
+  - [Istio Traffic Management](#istio-traffic-management)
 - [4. Request Flow & Traffic Management](#4-request-flow--traffic-management)
   - [Overview of the Additional Use Case](#overview-of-the-additional-use-case)
   - [Path of a Typical Request](#path-of-a-typical-request)
+  - [Canary Release & Traffic Split](#canary-release--traffic-split)
+- [Further Reading](#further-reading)
 
 ---
 
@@ -69,6 +72,12 @@ The system is composed of two primary microservices, communicating internally:
 * **Secrets**: Hold sensitive data such as SMTP credentials and TLS certificates.
 * **PrometheusRule**: Defines alerting rules (e.g., `TooManyRequests`).
 * **Alertmanager**: Handles alert routing and notifications.
+
+### **Istio Traffic Management**
+
+* **Gateway** (`gateway`): Accepts external traffic on port 80 and routes it into the mesh.
+* **VirtualServices** (`myapp-istio-vs`, `myapp-model-vs`): Define routing rules including the 90/10 canary split and version consistency.
+* **EnvoyFilters**: Extend gateway functionality with rate limiting capabilities.
 
 ## 4. Request Flow & Traffic Management
 
@@ -136,3 +145,26 @@ Lastly, the figure below illustrates the physical deployment of our application,
 
 ![Figure 3. Physical structure of the VMs](images/vm_structure.jpg "Figure 3. Physical structure of the VMs")
 
+| VM | Role | Key Components |
+|:---|:-----|:---------------|
+| **ctrl** | Control Plane | Kubernetes API, etcd, scheduler |
+| **node-1** | Worker | App pods, Model pods, Prometheus |
+| **node-2** | Worker | App pods, Grafana, Redis, RLS |
+
+> **Note:** Pod distribution across workers is managed by the Kubernetes scheduler and may vary.
+
+### Canary Release & Traffic Split
+
+The **90/10 traffic split** is configured in `helm/myapp/values.yaml` under `istio.virtualService.weightStable` and `istio.virtualService.weightExperiment`. The routing decision is made by VirtualService `myapp-istio-vs` at the Istio Ingress Gateway.
+
+* **Header bypass:** Adding `canary: enabled` header routes directly to v2 (preview).
+* **Sticky sessions:** After a user's first visit, a `user_group` cookie is set (`v1` or `v2`) ensuring subsequent requests route to the same version for 24 hours.
+* **Version consistency:** App v1 always calls Model v1, and App v2 always calls Model v2. This is enforced by `myapp-model-vs` which routes based on the calling pod's `version` label.
+
+---
+
+## Further Reading
+
+* [Helm Chart Documentation](../helm/myapp/README.md)
+* [Continuous Experimentation](./continuous-experimentation.md)
+* [Extension Proposal](./extension.md)
