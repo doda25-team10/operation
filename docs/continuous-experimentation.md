@@ -15,7 +15,7 @@ The experiment compares two UI versions:
 -   **Stable UI**: The standard interface currently in production.
 ![Stable UI](./images/ui_stable.png)
 -   **Experimental UI**: A modified interface designed to increase user interaction.
-![Experimental UI](./images/ui_experimental.png)
+![Experimental UI](./images/ui_experimental.jpeg)
 
 # Hypothesis
 The experimental UI will improve user engagement compared to the stable version, specifically:
@@ -24,21 +24,17 @@ The experimental UI will improve user engagement compared to the stable version,
 
 # Relevant Metrics
 To analyze changes in user engagement, we will track:
-*   `interaction_rate`: The frequency of user interactions with the core features.
+*   `total_predictions`: The total number of predictions (spam + ham).
 *   `abandonment_rate`: The percentage of sessions where users leave without completing a primary action.
 
 If the Experimental UI shows a statistically significant improvement in these metrics compared to the Stable UI, the hypothesis will be supported.
 
 # Decision Process
-We will deploy the Stable version to one user group and the Experimental version to another. We will collect metrics for `interaction_rate` and `abandonment_rate` for both groups.
-Using a Grafana dashboard, we will visualize the time-series data for both versions. We will compare the performance of the Experimental UI against the Stable baseline to determine if the 15% improvement targets are met.
+We will deploy the Stable version to one user group and the Experimental version to another. We will collect metrics for `total_predictions` and `abandonment_rate` for both groups. Using a Grafana dashboard, we will visualize the time-series data for both versions. We will compare the performance of the Experimental UI against the Stable baseline to determine if the 15% improvement targets are met.
 
 # Grafana Results
-Data visualization for the Stable version:
-[IMAGE]
-
-Data visualization for the Experimental version:
-[IMAGE]
+Below are the results of the experiment, indicating that the experimental UI improves user engagement compared to the stable version.
+![Grafana Results](./images/grafana_results.jpeg)
 
 # Limitations
 As this is an initial experiment, data may be mocked or limited to a testing environment, which may not perfectly reflect real-world usage patterns.
