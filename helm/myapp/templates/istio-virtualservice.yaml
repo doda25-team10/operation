@@ -22,11 +22,19 @@ spec:
     - match:
         - headers:
             {{ .Values.istio.canary.header | default "canary" }}:
-              exact: {{ .Values.istio.canary.headerValue | default "enabled" | quote }}
+              exact: {{ .Values.istio.canary.experimentalHeaderValue | default "experimental" | quote }}
       route:
         - destination:
             host: {{ include "myapp.appServiceName" . }}
             subset: v2
+    - match:
+        - headers:
+            {{ .Values.istio.canary.header | default "canary" }}:
+              exact: {{ .Values.istio.canary.stableHeaderValue | default "stable" | quote }}
+      route:
+        - destination:
+            host: {{ include "myapp.appServiceName" . }}
+            subset: v1
     - match:
         - headers:
             cookie:

@@ -262,12 +262,12 @@ The classification always returning spam is simply so we can show the experiment
 Once you access the app and a get specific version, you are stuck with it for a certain amount of time. 
 You can see which version you have in your cookies, these are named v1 and v2, and you can delete these 
 and refresh your page as often as you want in order to be convinced the 90/10 split is correctly implemented.
-11. We can do the same using curl requests, but this works a little differently. Classifying a message using
-`curl -X POST http://{EXTERNAL_IP}/sms/   -H "Content-Type: application/json"  -d '{"sms": "hi"}'` should return the correct
-output 90% of the time (`{"classifier":null,"result":"ham","sms":"hi","guess":null}` in the case of our message), 
-and spam 10% of the time (`{"classifier":null,"result":"spam","sms":"hi","guess":null}`). When we add the Canary "bypass" header, 
-`curl -X POST http://{EXTERNAL_IP}/sms/   -H "Content-Type: application/json" -H "canary: enabled"  -d '{"sms": "hi"}'`, you should
+11. We can do the same using curl requests, but this works a little differently. Classifying a message using the
+stable Canary header `curl -X POST http://{EXTERNAL_IP}/sms/ -H "Content-Type: application/json" -H "canary stable" -d '{"sms": "hi"}'` 
+should *always* return the correct output (`{"classifier":null,"result":"ham","sms":"hi","guess":null}` in the case of our message).
+When we add the experimental header, `curl -X POST http://{EXTERNAL_IP}/sms/   -H "Content-Type: application/json" -H "canary: experimental" -d '{"sms": "hi"}'`, you should
 *always* get `{"classifier":null,"result":"spam","sms":"hi","guess":null}` regardless of the message.
+When we don't add any Canary header, you should get a 90/10 split of ham/spam returned. 
 
 General information:
 The default Ingress Gateway selector is set to `ingressgateway`. If deploying to a cluster where the Istio Ingress Gateway 
