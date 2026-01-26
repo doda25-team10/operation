@@ -1,7 +1,9 @@
 # Team 10 Activity
 
 ## Week Q2.1 (Nov 10+)
+
 ### No Work
+
 
 ## Week Q2.2 (Nov 15+)
 
@@ -13,6 +15,7 @@
 | **Denis** | Fixed small issues related to the usage of environmental files and created a workflow for the model release. Added description of the organization to the README in operation repository. | https://github.com/doda25-team10/operation/pull/6, https://github.com/doda25-team10/model-service/pull/6 | https://github.com/doda25-team10/model-service/pull/2, https://github.com/doda25-team10/model-service/pull/5 |
 | **Paul** | I have worked on A1, implementing the version-aware library, its automated release workflow and the advanced versioning strategy for it, covering F1, F2 and F11. | https://github.com/doda25-team10/lib-version/pull/6 | https://github.com/doda25-team10/operation/pull/6 |
 | **Aadesh** | I have worked on the containerisation, versioning and packaging of the app-service, i.e. F3, F4, F5, F6, F8.| https://github.com/doda25-team10/app-service/pull/2, https://github.com/doda25-team10/app-service/pull/3, https://github.com/doda25-team10/app-service/pull/4 | https://github.com/doda25-team10/model-service/pull/4 |
+
 
 ## Week Q2.3 (Nov 22+)
 
@@ -37,6 +40,7 @@
 | **Paul** | Worked on A2 steps 20 and 21 | https://github.com/doda25-team10/operation/pull/23 | https://github.com/doda25-team10/operation/pull/22 |
 | **Aadesh** |  Worked on A2 steps 15, 18 and 19| [https://github.com/doda25-team10/operation/pull/21](https://github.com/doda25-team10/operation/pull/21) | [https://github.com/doda25-team10/model-service/pull/20](https://github.com/doda25-team10/operation/pull/20) |
 
+
 ## Week Q2.5 (Dec 6+)
 
 | Team Member | Contribution Description | Merged PRs (Created) | Approved PRs (Reviewed) |
@@ -60,6 +64,7 @@
 | **Paul** |  Worked on **A4** by implementing the first part of traffic management dashboard | https://github.com/doda25-team10/operation/pull/33| - |
 | **Aadesh** | Worked on **A4** by finalising the traffic management | https://github.com/doda25-team10/operation/pull/36 | https://github.com/doda25-team10/operation/pull/30, https://github.com/doda25-team10/model-service/pull/9, https://github.com/doda25-team10/app/pull/11 |
 
+
 ## Week Q2.7 (Jan 3+)
 
 | Team Member | Contribution Description | Merged PRs (Created) | Approved PRs (Reviewed) |
@@ -70,6 +75,7 @@
 | **Denis** | Worked on presentation slides | - | - |
 | **Paul** |  Worked on presentation slides | - | - |
 | **Aadesh** | Updated traffic management for **A4** and worked on presentation slides | https://github.com/doda25-team10/operation/pull/36 | https://github.com/doda25-team10/operation/pull/34 |
+
 
 ## Week Q2.8 (Jan 10+)
 
@@ -84,6 +90,7 @@ _Note that during this week, we had a group meeting to practice our presentation
 | **Paul** |  Worked on the final presentation, shortening some components to fit into the 10-minute window. Started revising slides and code in preparation for Q&A. | - | https://github.com/doda25-team10/operation/pull/38 |
 | **Aadesh** | Updated traffic management to ensure that it is compatible with the latest changes that have been made for A4 | https://github.com/doda25-team10/operation/pull/39 | https://github.com/doda25-team10/app/pull/13 |
 
+
 ## Week Q2.9 (Jan 17+)
 
 | Team Member | Contribution Description                                         | Merged PRs (Created)                                                                         | Approved PRs (Reviewed) |
@@ -94,6 +101,7 @@ _Note that during this week, we had a group meeting to practice our presentation
 | **Denis**   | Worked on **A4** by adding *sms_upstream_errors_total* and *sms_input_length_histogram* metrics. Updated the *a4-experimental* with the code from *main*. Updated tags and versions.                                                            | https://github.com/doda25-team10/app/pull/14 https://github.com/doda25-team10/app/pull/16 https://github.com/doda25-team10/operation/pull/41                                                                                            | https://github.com/doda25-team10/app/pull/15                       |
 | **Paul**    | worked on *a4* by adding a new metric to be collected in the app | [https://github.com/doda25-team10/app/pull/15](https://github.com/doda25-team10/app/pull/15) | -                       |
 | **Aadesh**  | Improved Sticky sessions by adding Stable canary headers and instructions for cookie Curl requests | https://github.com/doda25-team10/operation/pull/44   | -                       |
+
 
 ## Week Q2.10 (Jan 26+)
 
