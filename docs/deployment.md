@@ -126,7 +126,7 @@ The rate limiter uses this header value as the key for tracking request counts. 
    - **Within Limit:** If the user's request limit has not been exceeded, the request proceeds through the normal VirtualService routing logic to the App Service.
    - **Limit Exceeded**: If the rate limit is exceeded, the request is rejected immediately, and the client receives an `HTTP 429 Too Many Requests` response.
 4. **Ingress VirtualService Routing:** The gateway-facing VirtualService (`myapp-istio-vs`) intercepts the request.
-5. **App Service Selection (Canary Logic):** The request is routed to either the V1 (stable) or V2 (preview) subset of the App Service Deployment based on weight. This random selection can be bypassed by using the `canary: experimantal` header to select the preview version and `canary: stable` to select the stable version.
+5. **App Service Selection (Canary Logic):** The request is routed to either the V1 (stable) or V2 (preview) subset of the App Service Deployment based on weight. This random selection can be bypassed by using the `canary: experimental` header to select the preview version and `canary: stable` to select the stable version.
 6. **Internal Model Service Call:** The App Service calls the Model Service (`myapp-model-service`).
 7. **Model VirtualService Routing:** The `myapp-model-vs` VirtualService applies routing rules:
    - Requests with label `version: v2` are routed to the V2 subset (`preview`) of the Model Service, which has been modified to always predict spam for any given message.
