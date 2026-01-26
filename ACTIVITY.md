@@ -102,6 +102,6 @@ _Note that during this week, we had a group meeting to practice our presentation
 | **Andrea** | - | - | - |
 | **Yi** | - | - | - |
 | **Maciej** | - | - | - |
-| **Denis** | Worked on Continious Experimentation for **A4** | https://github.com/doda25-team10/operation/pull/45 | - |
-| **Paul** | - | - | - |
+| **Denis** | Worked on Continuous Experimentation for **A4** | https://github.com/doda25-team10/operation/pull/45 | - |
+| **Paul** | Grafana Dashboard for Continuous Experimentation for **A4** | https://github.com/doda25-team10/operation/pull/46 | - |
 | **Aadesh** | - | - | - |
