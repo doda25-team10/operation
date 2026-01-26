@@ -95,3 +95,13 @@ _Note that during this week, we had a group meeting to practice our presentation
 | **Paul**    | worked on *a4* by adding a new metric to be collected in the app | [https://github.com/doda25-team10/app/pull/15](https://github.com/doda25-team10/app/pull/15) | -                       |
 | **Aadesh**  | Improved Sticky sessions by adding Stable canary headers and instructions for cookie Curl requests | https://github.com/doda25-team10/operation/pull/44   | -                       |
 
+## Week Q2.10 (Jan 26+)
+
+| Team Member | Contribution Description | Merged PRs (Created) | Approved PRs (Reviewed) |
+| :--- | :--- | :--- | :--- |
+| **Andrea** | - | - | - |
+| **Yi** | - | - | - |
+| **Maciej** | - | - | - |
+| **Denis** | Worked on Continious Experimentation for **A4** | https://github.com/doda25-team10/operation/pull/45 | - |
+| **Paul** | - | - | - |
+| **Aadesh** | - | - | - |
