@@ -1,6 +1,6 @@
 services:
   model-service:
-    image: ghcr.io/doda25-team10/model-service:${MODEL_SERVICE_TAG:-latest}
+    image: ghcr.io/doda25-team10/model-service:${MODEL_SERVICE_TAG:-0.1.5}
     pull_policy: always
     environment:
       - PORT=${MODEL_PORT:-8081}
@@ -13,7 +13,7 @@ services:
     restart: unless-stopped
 
   app:
-    image: ghcr.io/doda25-team10/app:${APP_SERVICE_TAG:-latest}
+    image: ghcr.io/doda25-team10/app:${APP_SERVICE_TAG:-0.0.11}
     pull_policy: always
     ports:
       - "${APP_PORT:-8080}:8080"
