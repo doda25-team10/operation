@@ -100,7 +100,7 @@ _Note that during this week, we had a group meeting to practice our presentation
 | Team Member | Contribution Description | Merged PRs (Created) | Approved PRs (Reviewed) |
 | :--- | :--- | :--- | :--- |
 | **Andrea** | - | - | - |
-| **Yi** | - | - | - |
+| **Yi** | - | - | https://github.com/doda25-team10/operation/pull/46 |
 | **Maciej** | - | - | - |
 | **Denis** | Worked on Continuous Experimentation for **A4** | https://github.com/doda25-team10/operation/pull/45 | - |
 | **Paul** | Grafana Dashboard for Continuous Experimentation for **A4** | https://github.com/doda25-team10/operation/pull/46 | - |
