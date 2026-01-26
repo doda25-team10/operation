@@ -8,7 +8,7 @@ You can view both conditions of the experiment yourself. With the deployment of 
 1.  **Stable Version**: The current base version of the application.
 2.  **Experimental Version**: The new version with the proposed UI changes.
 
-To view the two versions, access the application (e.g., via `frontend.local` or your specific deployment URL). You may need to refresh or use specific headers/cookies to toggle between the stable and experimental versions depending on the routing configuration.
+To view the two versions, access the application (e.g., via `frontend.local` or your specific deployment URL). For specific instructions on how to use traffic management features, refer to the [Traffic Management section](../helm/myapp/README.md#testing-out-traffic-management) in the Helm README.
 
 ## Changes
 The experiment compares two UI versions:
