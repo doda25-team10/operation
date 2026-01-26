@@ -5,7 +5,7 @@
 ### No Work
 
 
-## Week Q2.2 (Nov 17+)
+## Week Q2.2 (Nov 15+)
 
 | Team Member | Contribution Description | Merged PRs (Created) | Approved PRs (Reviewed) |
 | :--- | :--- | :--- | :--- |
@@ -17,7 +17,7 @@
 | **Aadesh** | I have worked on the containerisation, versioning and packaging of the app-service, i.e. F3, F4, F5, F6, F8.| https://github.com/doda25-team10/app-service/pull/2, https://github.com/doda25-team10/app-service/pull/3, https://github.com/doda25-team10/app-service/pull/4 | https://github.com/doda25-team10/model-service/pull/4 |
 
 
-## Week Q2.3 (Nov 24+)
+## Week Q2.3 (Nov 22+)
 
 | Team Member | Contribution Description | Merged PRs (Created) | Approved PRs (Reviewed) |
 | :--- | :--- | :--- | :--- |
@@ -29,7 +29,7 @@
 | **Aadesh** | Worked on **A2** by implementing step 7| [https://github.com/doda25-team10/app-service/pull/18](https://github.com/doda25-team10/operation/pull/18) | [https://github.com/doda25-team10/operation/pull/16](https://github.com/doda25-team10/operation/pull/16) |
 
 
-## Week Q2.4 (Dec 1+)
+## Week Q2.4 (Nov 29+)
 
 | Team Member | Contribution Description | Merged PRs (Created) | Approved PRs (Reviewed) |
 | :--- | :--- | :--- | :--- |
@@ -41,7 +41,7 @@
 | **Aadesh** |  Worked on A2 steps 15, 18 and 19| [https://github.com/doda25-team10/operation/pull/21](https://github.com/doda25-team10/operation/pull/21) | [https://github.com/doda25-team10/model-service/pull/20](https://github.com/doda25-team10/operation/pull/20) |
 
 
-## Week Q2.5 (Dec 8+)
+## Week Q2.5 (Dec 6+)
 
 | Team Member | Contribution Description | Merged PRs (Created) | Approved PRs (Reviewed) |
 | :--- | :--- | :--- | :--- |
@@ -53,7 +53,7 @@
 | **Aadesh** | Worked on **A3** by finalising the migration to Helm | [https://github.com/doda25-team10/operation/pull/28](https://github.com/doda25-team10/operation/pull/28), [https://github.com/doda25-team10/app/pull/9](https://github.com/doda25-team10/app/pull/9) | [https://github.com/doda25-team10/operation/pull/29](https://github.com/doda25-team10/operation/pull/29) |
 
 
-## Week Q2.6 (Dec 15+)
+## Week Q2.6 (Dec 13+)
 
 | Team Member | Contribution Description | Merged PRs (Created) | Approved PRs (Reviewed) |
 | :--- | :--- | :--- | :--- |
@@ -65,7 +65,7 @@
 | **Aadesh** | Worked on **A4** by finalising the traffic management | https://github.com/doda25-team10/operation/pull/36 | https://github.com/doda25-team10/operation/pull/30, https://github.com/doda25-team10/model-service/pull/9, https://github.com/doda25-team10/app/pull/11 |
 
 
-## Week Q2.7 (Jan 5+)
+## Week Q2.7 (Jan 3+)
 
 | Team Member | Contribution Description | Merged PRs (Created) | Approved PRs (Reviewed) |
 | :--- | :--- | :--- | :--- |
@@ -77,7 +77,7 @@
 | **Aadesh** | Updated traffic management for **A4** and worked on presentation slides | https://github.com/doda25-team10/operation/pull/36 | https://github.com/doda25-team10/operation/pull/34 |
 
 
-## Week Q2.8 (Jan 12+)
+## Week Q2.8 (Jan 10+)
 
 _Note that during this week, we had a group meeting to practice our presentation. As such, everyone prepared for it, and also worked on their parts to make everything smoother and fit into our 10-minute presentation window._
 
@@ -91,7 +91,7 @@ _Note that during this week, we had a group meeting to practice our presentation
 | **Aadesh** | Updated traffic management to ensure that it is compatible with the latest changes that have been made for A4 | https://github.com/doda25-team10/operation/pull/39 | https://github.com/doda25-team10/app/pull/13 |
 
 
-## Week Q2.9 (Jan 19+)
+## Week Q2.9 (Jan 17+)
 
 | Team Member | Contribution Description                                         | Merged PRs (Created)                                                                         | Approved PRs (Reviewed) |
 | :---------- | :--------------------------------------------------------------- | :------------------------------------------------------------------------------------------- | :---------------------- |
