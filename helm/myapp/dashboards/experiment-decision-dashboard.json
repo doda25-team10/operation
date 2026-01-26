@@ -1,7 +1,7 @@
 {
   "schemaVersion": 39,
   "title": "UI Engagement – Experiment Decision Dashboard",
-  "version": 2,
+  "version": 3,
   "timezone": "browser",
   "refresh": "10s",
   "time": { "from": "now-30m", "to": "now" },
@@ -21,6 +21,18 @@
         "label": "Observation window",
         "query": "15m,30m,1h,6h,24h",
         "current": { "text": "30m", "value": "30m" }
+      },
+      {
+        "name": "stableVersion",
+        "type": "constant",
+        "label": "Stable version",
+        "query": "{{ .Values.app.image.tagStable }}"
+      },
+      {
+        "name": "experimentVersion",
+        "type": "constant",
+        "label": "Experimental version",
+        "query": "{{ .Values.app.image.tagExperiment }}"
       }
     ]
   },
@@ -29,18 +41,18 @@
       "id": 1,
       "type": "stat",
       "title": "Total predictions (spam + ham)",
-      "description": "Total predictions over the observation window. Stable UI (0.0.11) vs Experimental UI (0.0.12). Higher means more interaction.",
+      "description": "Total predictions over the observation window. Stable UI ($stableVersion) vs Experimental UI ($experimentVersion). Higher means more interaction.",
       "gridPos": { "x": 0, "y": 0, "w": 8, "h": 7 },
       "targets": [
         {
           "refId": "S",
-          "expr": "round(sum(increase(sms_predictions_total{version=\"0.0.11\"}[$window])))",
-          "legendFormat": "Stable UI (0.0.11)"
+          "expr": "round(sum(increase(sms_predictions_total{version=\"$stableVersion\"}[$window])))",
+          "legendFormat": "Stable UI ($stableVersion)"
         },
         {
           "refId": "E",
-          "expr": "round(sum(increase(sms_predictions_total{version=\"0.0.12\"}[$window])))",
-          "legendFormat": "Experimental UI (0.0.12)"
+          "expr": "round(sum(increase(sms_predictions_total{version=\"$experimentVersion\"}[$window])))",
+          "legendFormat": "Experimental UI ($experimentVersion)"
         }
       ],
       "fieldConfig": {
@@ -62,18 +74,18 @@
       "id": 2,
       "type": "stat",
       "title": "Abandonment rate (abandoned / sessions)",
-      "description": "Abandonment rate over the observation window. Stable UI (0.0.11) vs Experimental UI (0.0.12). Lower is better. Sessions proxied by time_on_page count.",
+      "description": "Abandonment rate over the observation window. Stable UI ($stableVersion) vs Experimental UI ($experimentVersion). Lower is better. Sessions proxied by time_on_page count.",
       "gridPos": { "x": 8, "y": 0, "w": 8, "h": 7 },
       "targets": [
         {
           "refId": "S",
-          "expr": "sum(increase(sms_pages_abandoned_total{version=\"0.0.11\"}[$window])) / clamp_min(sum(increase(sms_time_on_page_seconds_count{version=\"0.0.11\"}[$window])), 1)",
-          "legendFormat": "Stable UI (0.0.11)"
+          "expr": "sum(increase(sms_pages_abandoned_total{version=\"$stableVersion\"}[$window])) / clamp_min(sum(increase(sms_time_on_page_seconds_count{version=\"$stableVersion\"}[$window])), 1)",
+          "legendFormat": "Stable UI ($stableVersion)"
         },
         {
           "refId": "E",
-          "expr": "sum(increase(sms_pages_abandoned_total{version=\"0.0.12\"}[$window])) / clamp_min(sum(increase(sms_time_on_page_seconds_count{version=\"0.0.12\"}[$window])), 1)",
-          "legendFormat": "Experimental UI (0.0.12)"
+          "expr": "sum(increase(sms_pages_abandoned_total{version=\"$experimentVersion\"}[$window])) / clamp_min(sum(increase(sms_time_on_page_seconds_count{version=\"$experimentVersion\"}[$window])), 1)",
+          "legendFormat": "Experimental UI ($experimentVersion)"
         }
       ],
       "fieldConfig": {
@@ -95,18 +107,18 @@
       "id": 3,
       "type": "stat",
       "title": "Time on page (median, p50, seconds)",
-      "description": "Median time on page (p50) over the observation window. Stable UI (0.0.11) vs Experimental UI (0.0.12). Higher is better.",
+      "description": "Median time on page (p50) over the observation window. Stable UI ($stableVersion) vs Experimental UI ($experimentVersion). Higher is better.",
       "gridPos": { "x": 16, "y": 0, "w": 8, "h": 7 },
       "targets": [
         {
           "refId": "S",
-          "expr": "histogram_quantile(0.50, sum(rate(sms_time_on_page_seconds_bucket{version=\"0.0.11\"}[$window])) by (le))",
-          "legendFormat": "Stable UI (0.0.11)"
+          "expr": "histogram_quantile(0.50, sum(rate(sms_time_on_page_seconds_bucket{version=\"$stableVersion\"}[$window])) by (le))",
+          "legendFormat": "Stable UI ($stableVersion)"
         },
         {
           "refId": "E",
-          "expr": "histogram_quantile(0.50, sum(rate(sms_time_on_page_seconds_bucket{version=\"0.0.12\"}[$window])) by (le))",
-          "legendFormat": "Experimental UI (0.0.12)"
+          "expr": "histogram_quantile(0.50, sum(rate(sms_time_on_page_seconds_bucket{version=\"$experimentVersion\"}[$window])) by (le))",
+          "legendFormat": "Experimental UI ($experimentVersion)"
         }
       ],
       "fieldConfig": {
