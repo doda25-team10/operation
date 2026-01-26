@@ -157,7 +157,7 @@ Lastly, the figure below illustrates the physical deployment of our application,
 
 The **90/10 traffic split** is configured in `helm/myapp/values.yaml` under `istio.virtualService.weightStable` and `istio.virtualService.weightExperiment`. The routing decision is made by VirtualService `myapp-istio-vs` at the Istio Ingress Gateway.
 
-* **Header bypass:** Adding `canary: enabled` header routes directly to v2 (preview).
+* **Header bypass:** Adding `canary: experimental` header routes directly to v2 (preview), while `canary: stable` consistently routes to v1 (stable).
 * **Sticky sessions:** After a user's first visit, a `user_group` cookie is set (`v1` or `v2`) ensuring subsequent requests route to the same version for 24 hours.
 * **Version consistency:** App v1 always calls Model v1, and App v2 always calls Model v2. This is enforced by `myapp-model-vs` which routes based on the calling pod's `version` label.
 
