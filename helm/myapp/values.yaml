@@ -56,7 +56,7 @@ prometheus:
   enabled: true
   serviceMonitor:
     enabled: true
-    interval: "15s"
+    interval: "5s"
     path: "/sms/metrics"
   service:
       type: ClusterIP
@@ -78,9 +78,6 @@ kube-prometheus-stack:
         matchLabels:
           monitoring: "app"
       
-      # How often to scrape metrics
-      scrapeInterval: 15s
-
       resources: {}
       env: {}
 
