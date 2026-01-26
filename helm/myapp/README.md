@@ -10,19 +10,31 @@ helm/myapp/
   dashboards/
     a4-decision-dashboard.json
     app-metrics-dashboard.json
+    experiment-decision-dashboard.json
   templates/
     _helpers.tpl
     alertmanager-config.yaml
     app-configmap.yaml
-    app-deployment.yaml
+    app-deployment-v1.yaml
+    app-deployment-v2.yaml
+    app-destinationRules.yaml
     app-ingress.yaml
     app-secret.yaml
     app-service.yaml
     grafana-dashboard-configmap.yaml
     grafana-deployment.yaml
     grafana-service.yaml
+    istio-envoyfilter-ratelimit.yaml 
+    istio-envoyfilter-rls.yaml 
+    istio-gateway.yaml 
+    istio-rls-configmap.yaml 
+    istio-rls-deployment.yaml 
+    istio-rls-redis.yaml 
+    istio-virtualservice-consistency.yaml 
+    istio-virtualservice.yaml
     model-configmap.yaml
-    model-deployment.yaml
+    model-deployment-v1.yaml
+    model-deployment-v2.yaml
     model-service.yaml
     prometheusrule.yaml
     servicemonitor.yaml
@@ -38,15 +50,26 @@ helm/myapp/
 - `templates/_helpers.tpl`: Template helper functions used by other templates (name/label helpers, common snippets).
 - `templates/alertmanager-config.yaml`: Renders the Alertmanager configuration with SMTP/email settings and routing.
 - `templates/app-configmap.yaml`: Application configuration injected into pods as a ConfigMap (env vars, config files, templates).
-- `templates/app-deployment.yaml`: Kubernetes Deployment for the application (containers, resources, replicas).
+- `templates/app-deployment-v1.yaml`: Kubernetes Deployment for the application version 1 (containers, resources, replicas).
+- `templates/app-deployment-v2.yaml`: Kubernetes Deployment for the application version 2 (containers, resources, replicas).
+- `templates/app-destinationRules.yaml`: Configuring routing destination to which version.
 - `templates/app-ingress.yaml`: Ingress resource for exposing the application under the configured hostnames.
 - `templates/app-secret.yaml`: Kubernetes Secret for sensitive values (for example SMTP/app passwords) created from `values.yaml` or auto-generated data.
 - `templates/app-service.yaml`: Service fronting the application Deployment for internal/external access.
 - `templates/grafana-dashboard-configmap.yaml`: ConfigMap that holds the dashboard JSON and makes it available to the Grafana pod.
 - `templates/grafana-deployment.yaml`: Deployment for Grafana (includes dashboard provisioning).
 - `templates/grafana-service.yaml`: Service that exposes Grafana to the cluster or via the Ingress.
+- `templates/istio-envoyfilter-ratelimit.yaml`: EnvoyFilter that configures rate limiting at the Envoy proxy level, defining limits per route or global limits.
+- `templates/istio-envoyfilter-rls.yaml`: EnvoyFilter that integrates with the Rate Limit Service (RLS).
+- `templates/istio-gateway.yaml`: Istio Gateway resource that configures ingress/egress gateways, defining which ports and protocols are exposed.
+- `templates/istio-rls-configmap.yaml`: ConfigMap containing the Rate Limit Service configuration (domain descriptors, rate limit definitions).
+- `templates/istio-rls-deployment.yaml`: Deployment for the Rate Limit Service (typically Envoy's ratelimit service).
+- `templates/istio-rls-redis.yaml`: Deployment and Service for Redis, used as the backend store for the Rate Limit Service to track request counts and enforce limits.
+- `templates/istio-virtualservice-consistency.yaml`: VirtualService defining traffic routing rules with consistent hashing or session affinity to ensure requests from the same user go to the same backend version.
+- `templates/istio-virtualservice.yaml`: Primary VirtualService defining traffic routing, weight-based splitting between v1/v2, match conditions, retries, and timeouts for the application.
 - `templates/model-configmap.yaml`: Configuration for the model component (environment or startup config) delivered as a ConfigMap.
-- `templates/model-deployment.yaml`: Deployment for the model-serving container(s) which serve predictions.
+- `templates/model-deployment-v1.yaml`: Deployment for the model-serving container(s) of version 1 which serve predictions.
+- `templates/model-deployment-v2.yaml`: Deployment for the model-serving container(s) of version 2 which serve predictions.
 - `templates/model-service.yaml`: Service exposing the model deployment to other in-cluster components (and optionally the app).
 - `templates/prometheusrule.yaml`: PrometheusRule resources defining alerting rules (e.g. TooManyRequests) consumed by Prometheus.
 - `templates/servicemonitor.yaml`: ServiceMonitor resource for Prometheus to scrape metrics from the application and model services.
