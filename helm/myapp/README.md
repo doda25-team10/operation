@@ -10,19 +10,31 @@ helm/myapp/
   dashboards/
     a4-decision-dashboard.json
     app-metrics-dashboard.json
+    experiment-decision-dashboard.json
   templates/
     _helpers.tpl
     alertmanager-config.yaml
     app-configmap.yaml
-    app-deployment.yaml
+    app-deployment-v1.yaml
+    app-deployment-v2.yaml
+    app-destinationRules.yaml
     app-ingress.yaml
     app-secret.yaml
     app-service.yaml
     grafana-dashboard-configmap.yaml
     grafana-deployment.yaml
     grafana-service.yaml
+    istio-envoyfilter-ratelimit.yaml 
+    istio-envoyfilter-rls.yaml 
+    istio-gateway.yaml 
+    istio-rls-configmap.yaml 
+    istio-rls-deployment.yaml 
+    istio-rls-redis.yaml 
+    istio-virtualservice-consistency.yaml 
+    istio-virtualservice.yaml
     model-configmap.yaml
-    model-deployment.yaml
+    model-deployment-v1.yaml
+    model-deployment-v2.yaml
     model-service.yaml
     prometheusrule.yaml
     servicemonitor.yaml
@@ -38,15 +50,26 @@ helm/myapp/
 - `templates/_helpers.tpl`: Template helper functions used by other templates (name/label helpers, common snippets).
 - `templates/alertmanager-config.yaml`: Renders the Alertmanager configuration with SMTP/email settings and routing.
 - `templates/app-configmap.yaml`: Application configuration injected into pods as a ConfigMap (env vars, config files, templates).
-- `templates/app-deployment.yaml`: Kubernetes Deployment for the application (containers, resources, replicas).
+- `templates/app-deployment-v1.yaml`: Kubernetes Deployment for the application version 1 (containers, resources, replicas).
+- `templates/app-deployment-v2.yaml`: Kubernetes Deployment for the application version 2 (containers, resources, replicas).
+- `templates/app-destinationRules.yaml`: Configuring routing destination to which version.
 - `templates/app-ingress.yaml`: Ingress resource for exposing the application under the configured hostnames.
 - `templates/app-secret.yaml`: Kubernetes Secret for sensitive values (for example SMTP/app passwords) created from `values.yaml` or auto-generated data.
 - `templates/app-service.yaml`: Service fronting the application Deployment for internal/external access.
 - `templates/grafana-dashboard-configmap.yaml`: ConfigMap that holds the dashboard JSON and makes it available to the Grafana pod.
 - `templates/grafana-deployment.yaml`: Deployment for Grafana (includes dashboard provisioning).
 - `templates/grafana-service.yaml`: Service that exposes Grafana to the cluster or via the Ingress.
+- `templates/istio-envoyfilter-ratelimit.yaml`: EnvoyFilter that configures rate limiting at the Envoy proxy level, defining limits per route or global limits.
+- `templates/istio-envoyfilter-rls.yaml`: EnvoyFilter that integrates with the Rate Limit Service (RLS).
+- `templates/istio-gateway.yaml`: Istio Gateway resource that configures ingress/egress gateways, defining which ports and protocols are exposed.
+- `templates/istio-rls-configmap.yaml`: ConfigMap containing the Rate Limit Service configuration (domain descriptors, rate limit definitions).
+- `templates/istio-rls-deployment.yaml`: Deployment for the Rate Limit Service (typically Envoy's ratelimit service).
+- `templates/istio-rls-redis.yaml`: Deployment and Service for Redis, used as the backend store for the Rate Limit Service to track request counts and enforce limits.
+- `templates/istio-virtualservice-consistency.yaml`: VirtualService defining traffic routing rules with consistent hashing or session affinity to ensure requests from the same user go to the same backend version.
+- `templates/istio-virtualservice.yaml`: Primary VirtualService defining traffic routing, weight-based splitting between v1/v2, match conditions, retries, and timeouts for the application.
 - `templates/model-configmap.yaml`: Configuration for the model component (environment or startup config) delivered as a ConfigMap.
-- `templates/model-deployment.yaml`: Deployment for the model-serving container(s) which serve predictions.
+- `templates/model-deployment-v1.yaml`: Deployment for the model-serving container(s) of version 1 which serve predictions.
+- `templates/model-deployment-v2.yaml`: Deployment for the model-serving container(s) of version 2 which serve predictions.
 - `templates/model-service.yaml`: Service exposing the model deployment to other in-cluster components (and optionally the app).
 - `templates/prometheusrule.yaml`: PrometheusRule resources defining alerting rules (e.g. TooManyRequests) consumed by Prometheus.
 - `templates/servicemonitor.yaml`: ServiceMonitor resource for Prometheus to scrape metrics from the application and model services.
@@ -238,43 +261,6 @@ helm upgrade myapp ./helm/myapp --namespace sms-stack --create-namespace
 # helm install myapp ./helm/myapp --namespace sms-stack --create-namespace
 ```
 
-## Testing out Traffic Management
-In order to test out the traffic management, please follow the following steps:
-1. Optional: Run `minikube delete` to start off completely fresh, might be needed if the traffic management doesn't work after following these instructions
-2. Run `minikube start` and then `minikube addons enable ingress`
-3. Install Istio and run `istioctl install`
-4. Create the namespace in which you want to work, in our case it will be `sms-stack`: `kubectl create namespace sms-stack`
-5. Enable Istio by running `kubectl label ns default istio-injection=enabled` and `kubectl label ns sms-stack istio-injection=enabled`. 
-6. Install the Helm Chart (`helm upgrade --install myapp ./helm/myapp/ -n sms-stack`)
-7. Wait until all pods are ready, you can check this by running `kubectl get pods -n sms-stack` and checking the READY column
-8. Run `minikube tunnel`
-9. Find out the external IP of your ingress gateway by running `kubectl get service -n istio-system`
-You should get something similar to the following, but the external IP can differ. There will likely also be
-other rows returned but these are not relevant for this.
-```
-NAME                          TYPE           CLUSTER-IP       EXTERNAL-IP    PORT(S)                                          AGE
-istio-ingressgateway          LoadBalancer   10.98.37.197     10.98.37.197   15021:30870/TCP,80:30522/TCP,443:32060/TCP       3d19h
-```
-10. Access the external IP in the browser. With a 90% chance, you will see the stable version of the app/model. This version
-should work exactly as expected and should not contain any abnormal behaviour. With a 10% chance, you will see the experimental version.
-When you access {URL}/sms from the experimental version, the UI should be different and any message you will classify should *always* return spam. 
-The classification always returning spam is simply so we can show the experimental app and model go hand in hand.
-Once you access the app and a get specific version, you are stuck with it for a certain amount of time. 
-You can see which version you have in your cookies, these are named v1 and v2 for the stable and experimental version respectively, 
-and you can delete these and refresh your page as often as you want in order to be convinced the 90/10 split is correctly implemented.
-11. This can be done using curl requests as well by running 
-`curl -X POST http://{EXTERNAL_IP}/sms/ -H "Content-Type: application/json" -d '{"sms": "hi"}' -c cookies.txt`. This will
-save the received cookies in a `cookies.txt` file in the directory your terminal is opened in. You can open this file and verify
-which version you have (v1/v2). To send these cookies, run the command `curl -X POST http://{EXTERNAL_IP}/sms/ -H "Content-Type: application/json" -d '{"sms": "hi"}' -b cookies.txt`
-For v1, you should *always* get the correct output (`{"classifier":null,"result":"ham","sms":"hi","guess":null}` in the case of our message).
-For v2, you should *always* get spam returned (`{"classifier":null,"result":"spam","sms":"hi","guess":null}`), regardless of the message.
-To force the versions, you can add the flag `-H "Canary: stable` for v1 and `-H "Canary: experimental"` for v2. Using no cookies and no headers will 
-result in a 90/10 split for v1 and v2 respectively.
-
-General information:
-The default Ingress Gateway selector is set to `ingressgateway`. If deploying to a cluster where the Istio Ingress Gateway 
-has a different label, override the `istio.selectorLabels.istio` value in `values.yaml`.
-
 ---
 
 Open 2 separate terminal tabs and run the following port-forward commands:
@@ -321,6 +307,43 @@ Open your browser or use curl to send some prediction requests. This will genera
 | **Average Latency**    | **Time Series** | *Calculated*                             | Uses a PromQL function to calculate the average duration per request:`rate(sum) / rate(count)`.                                                                                                                                        |
 
 ---
+
+## Testing out Traffic Management
+In order to test out the traffic management, please follow the following steps:
+1. Optional: Run `minikube delete` to start off completely fresh, might be needed if the traffic management doesn't work after following these instructions
+2. Run `minikube start` and then `minikube addons enable ingress`
+3. Install Istio and run `istioctl install`
+4. Create the namespace in which you want to work, in our case it will be `sms-stack`: `kubectl create namespace sms-stack`
+5. Enable Istio by running `kubectl label ns default istio-injection=enabled` and `kubectl label ns sms-stack istio-injection=enabled`. 
+6. Install the Helm Chart (`helm upgrade --install myapp ./helm/myapp/ -n sms-stack`)
+7. Wait until all pods are ready, you can check this by running `kubectl get pods -n sms-stack` and checking the READY column
+8. Run `minikube tunnel`
+9. Find out the external IP of your ingress gateway by running `kubectl get service -n istio-system`
+You should get something similar to the following, but the external IP can differ. There will likely also be
+other rows returned but these are not relevant for this.
+```
+NAME                          TYPE           CLUSTER-IP       EXTERNAL-IP    PORT(S)                                          AGE
+istio-ingressgateway          LoadBalancer   10.98.37.197     10.98.37.197   15021:30870/TCP,80:30522/TCP,443:32060/TCP       3d19h
+```
+10. Access the external IP in the browser. With a 90% chance, you will see the stable version of the app/model. This version
+should work exactly as expected and should not contain any abnormal behaviour. With a 10% chance, you will see the experimental version.
+When you access {URL}/sms from the experimental version, the UI should be different and any message you will classify should *always* return spam. 
+The classification always returning spam is simply so we can show the experimental app and model go hand in hand.
+Once you access the app and a get specific version, you are stuck with it for a certain amount of time. 
+You can see which version you have in your cookies, these are named v1 and v2 for the stable and experimental version respectively, 
+and you can delete these and refresh your page as often as you want in order to be convinced the 90/10 split is correctly implemented.
+11. This can be done using curl requests as well by running 
+`curl -X POST http://{EXTERNAL_IP}/sms/ -H "Content-Type: application/json" -d '{"sms": "hi"}' -c cookies.txt`. This will
+save the received cookies in a `cookies.txt` file in the directory your terminal is opened in. You can open this file and verify
+which version you have (v1/v2). To send these cookies, run the command `curl -X POST http://{EXTERNAL_IP}/sms/ -H "Content-Type: application/json" -d '{"sms": "hi"}' -b cookies.txt`
+For v1, you should *always* get the correct output (`{"classifier":null,"result":"ham","sms":"hi","guess":null}` in the case of our message).
+For v2, you should *always* get spam returned (`{"classifier":null,"result":"spam","sms":"hi","guess":null}`), regardless of the message.
+To force the versions, you can add the flag `-H "Canary: stable` for v1 and `-H "Canary: experimental"` for v2. Using no cookies and no headers will 
+result in a 90/10 split for v1 and v2 respectively.
+
+General information:
+The default Ingress Gateway selector is set to `ingressgateway`. If deploying to a cluster where the Istio Ingress Gateway 
+has a different label, override the `istio.selectorLabels.istio` value in `values.yaml`.
 
 ## Troubleshooting tips
 
