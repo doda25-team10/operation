@@ -8,7 +8,12 @@ metadata:
 data:
 {{- range $path, $_ := .Files.Glob "dashboards/*.json" }}
   {{ base $path }}: |-
-{{ $.Files.Get $path | indent 4 }}
+{{- $content := $.Files.Get $path -}}
+{{- if contains "{{ .Values" $content }}
+{{ tpl $content $ | indent 4 }}
+{{- else }}
+{{ $content | indent 4 }}
+{{- end }}
 {{- end }}
 ---
 apiVersion: v1
