@@ -112,4 +112,4 @@ _Note that during this week, we had a group meeting to practice our presentation
 | **Maciej** | - | - | - |
 | **Denis** | Worked on Continuous Experimentation for **A4** | https://github.com/doda25-team10/operation/pull/45 | https://github.com/doda25-team10/operation/pull/47 |
 | **Paul** | Grafana Dashboard for Continuous Experimentation for **A4** | https://github.com/doda25-team10/operation/pull/46 | - |
-| **Aadesh** | Updated versions in docker compose to be consistent with Helm | https://github.com/doda25-team10/operation/pull/47 | - |
+| **Aadesh** | Updated versions in docker compose to be consistent with Helm, plus some small fixes | https://github.com/doda25-team10/operation/pull/47 https://github.com/doda25-team10/operation/pull/49 https://github.com/doda25-team10/operation/pull/50| - |
