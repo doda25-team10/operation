@@ -137,7 +137,7 @@ kubectl get pods -A
 
 ### Finalising the Cluster Setup
 
-After provisioning the cluster, MetalLB (LoadBalancer), Nginx ingress controller, and the Kuberenetes dashboard can be installed via the following command:
+After provisioning the cluster, MetalLB (LoadBalancer), Nginx ingress controller, and the Kubernetes dashboard can be installed via the following command:
 
 ```
 ansible-playbook -u vagrant -i 192.168.56.100, ./provisioning/finalization.yml --private-key {path-to-identityfile}
@@ -195,10 +195,10 @@ kubectl -n sms-stack port-forward svc/myapp-grafana-svc 3000:3000
 
 This project contains several documents and READMEs to guide you through specific parts of the system. Use the links below to dive deeper into the topics that interest you:
 
-| File.                                                                                             | Description                                                                                                                                                                                                                 |
+| File                                                                                              | Description                                                                                                                                                                                                                                                                                                                 |
 | ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **[operation/README.md](https://github.com/doda25-team10/operation/blob/main/README.md)**         | Step-by-step guide for running and operating the services locally using Docker, provisioning the Kubernetes cluster with Vagrant & Ansible, and deploying with Helm.                                                        |
 | **[helm/myapp/README.md](https://github.com/doda25-team10/operation/blob/main/helm/myapp/README.md)**         | Explains the Helm chart structure, file contents, `values.yaml` configuration, and how to deploy and customize the app stack in Kubernetes. Includes details about Prometheus, Grafana dashboards, and traffic management.  |
 | **[docs/deployment.md](https://github.com/doda25-team10/operation/blob/main/docs/deployment.md)** | Provides a high-level overview of the deployment architecture, request flow, canary release strategy, rate limiting, monitoring, and physical cluster setup. Good for understanding why the system works the way it does. |
 | **[docs/extension.md](https://github.com/doda25-team10/operation/blob/main/docs/extension.md)**   | Proposes an optional GitOps extension using Argo CD for automated deployment. Explains motivation, architecture, implementation plan, and benefits like drift detection and improved release management.                    |
-| **[docs/experimentation.md](https://github.com/doda25-team10/operation/blob/main/docs/experimentation.md)**   | Documents the experimentation workflow and results.                    |
+| **[docs/experimentation.md](https://github.com/doda25-team10/operation/blob/main/docs/experimentation.md)**   | Details the A/B testing experiment, including stable vs. experimental UI versions, hypothesis, metrics, and results. |
