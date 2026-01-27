@@ -107,7 +107,7 @@ _Note that during this week, we had a group meeting to practice our presentation
 
 | Team Member | Contribution Description | Merged PRs (Created) | Approved PRs (Reviewed) |
 | :--- | :--- | :--- | :--- |
-| **Andrea** | - | - | https://github.com/doda25-team10/operation/pull/47 |
+| **Andrea** | - | - | https://github.com/doda25-team10/operation/pull/47, https://github.com/doda25-team10/operation/pull/51 |
 | **Yi** | - | - | https://github.com/doda25-team10/operation/pull/46 |
 | **Maciej** | fixed 2 prometheus calling | https://github.com/doda25-team10/operation/pull/51 | - |
 | **Denis** | Worked on Continuous Experimentation for **A4**, fixed README.md | https://github.com/doda25-team10/operation/pull/45, https://github.com/doda25-team10/operation/pull/48 | https://github.com/doda25-team10/operation/pull/47 |
