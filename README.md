@@ -29,14 +29,14 @@ This project relies on several key tools and technologies to manage development,
 | Component                          | Purpose / Role                                                                                                                                                                   |
 | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Docker**                         | Containerizes the application and ML model. Used to build images and run services locally or in Kubernetes. You will use it first to start all services quickly on your machine. |
-| **Docker Compose**                 | Orchestrates multiple Docker containers together. Provides a simple way to run the app, model, and monitoring stack without Kubernetes.                                          |
+| **Docker Compose**                 | Orchestrates multiple Docker containers together. Provides a simple way to run the app and model stack without Kubernetes.                                          |
 | **Vagrant & VirtualBox**           | Used to provision virtual machines that host the Kubernetes cluster. Vagrant automates VM creation; VirtualBox provides the hypervisor.                                          |
 | **Ansible**                        | Automates the provisioning and configuration of the Kubernetes cluster and associated tools (MetalLB, Nginx Ingress, etc.). Runs on top of the Vagrant VMs.                      |
 | **Kubernetes**                     | Container orchestration platform. Manages pods, services, and deployments for the app and model. Ensures high availability, scaling, and internal networking.                    |
 | **Helm**                           | Kubernetes package manager. Simplifies deploying the app and model services along with Prometheus/Grafana using a single chart.                                                  |
 | **Istio**                          | Service mesh for traffic management. Handles canary releases, request routing, and rate limiting at the network layer.                                                           |
 | **Prometheus & Grafana**           | Observability stack. Prometheus collects metrics from services, and Grafana visualizes them in dashboards.                                                                       |
-| **Argo CD (Optional / Extension)** | GitOps controller that can automate deployment by syncing the cluster state with the Helm chart in Git. Reduces manual Helm commands and ensures reproducibility.                |
+| **Argo CD (Optional / Extension)** | Proposed project extension: GitOps controller that can automate deployment by syncing the cluster state with the Helm chart in Git. Reduces manual Helm commands and ensures reproducibility.                |
 
 ---
 
