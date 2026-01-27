@@ -91,13 +91,11 @@ Key sections:
 - `global.storage.hostPath`: path on the node and mount path inside the pod (defaults to `/mnt/shared`).
 - `app.*`: image, replica count, env vars, ConfigMap data, SMTP credentials (stored via stringData), and the ingress/service definition. By default the ingress renders both a **stable** host (enabled) and a **preview** host (disabled) via `app.ingress.hosts`. Leave `app.secret.smtpPassword` empty (with `autogenerate: true`) to have Helm create a random password during install.
 - `model.*`: Values similar to the app, without any ingress or secrets.
-- `prometheus`: Prometheus config, installed through kube-promeheus-stack
-- `kube-prometheus-stack`: collection which contains prometheus and the alertmanager.
+- `serviceMonitor.*`: configures the ServiceMonitor resource that enables kube-prometheus-stack to discover and scrape metrics from the application. Note: this does NOT deploy a standalone Prometheus; it only creates a ServiceMonitor resource.
+- `kube-prometheus-stack`: the monitoring stack subchart which contains Prometheus and Alertmanager.
 - `alertmanager`: placeholder for the required (secret) app password.
 - `grafana.*`: manages Grafana image, admin credentials, service type, and which dashboard file should act as the default home.
 - `experiments.preview.*`: future Assignment 4 knobs (currently disabled) that will control preview traffic weight, image overrides, or extra env vars once experimentation features are added.
-- `prometheus.*`: toggles the standalone Prometheus deployment/service, scrape interval and ServiceMonitor emission
-- `grafana.*`: manages Grafana image, admin credentials, service type, and which dashboard file should act as the default home.
 
 Example production overlay:
 
@@ -120,9 +118,10 @@ app:
         enabled: true
         host: "canary.prod.example.com"
         tlsSecretName: "spam-preview-tls"
-prometheus:
-  serviceMonitor:
-    namespace: observability
+serviceMonitor:
+  enabled: true
+  interval: "5s"
+  path: "/sms/metrics"
 grafana:
   adminPassword: "use-a-secret-manager"
 ```

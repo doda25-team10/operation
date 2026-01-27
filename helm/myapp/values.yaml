@@ -52,15 +52,11 @@ model:
   env: {}
   resources: {}
 
-prometheus:
+serviceMonitor:
   enabled: true
-  serviceMonitor:
-    enabled: true
-    interval: "5s"
-    path: "/sms/metrics"
-  service:
-      type: ClusterIP
-      port: 9090
+  interval: "5s"
+  path: "/sms/metrics"
+  prometheusPort: 9090
 
 kube-prometheus-stack:
   enabled: true
