@@ -56,7 +56,6 @@ serviceMonitor:
   enabled: true
   interval: "5s"
   path: "/sms/metrics"
-  # Port of kube-prometheus-stack's Prometheus service (used by Grafana datasource)
   prometheusPort: 9090
 
 kube-prometheus-stack:
